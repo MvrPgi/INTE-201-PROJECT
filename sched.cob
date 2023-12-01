@@ -30,6 +30,7 @@
        01 ValidPassword PIC X(20) VALUE 'pass'.
        01 TaskDateInput PIC X(10).
        01 TaskDescriptionInput PIC X(50).
+       01 ConfirmDeletion     PIC X.
 
        PROCEDURE DIVISION.
       *    OPEN INPUT ScheduleFile.
@@ -217,7 +218,12 @@
        DeleteTask.
            DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
            ACCEPT TaskDateInput.
-
+           DISPLAY "Do you want to continue with the deletion? (Y/N): ".
+           ACCEPT ConfirmDeletion.
+       
+            IF ConfirmDeletion = 'Y'
+            
+       
            OPEN INPUT ScheduleFile.
            OPEN OUTPUT TempFile.
 
