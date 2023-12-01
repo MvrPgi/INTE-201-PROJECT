@@ -215,51 +215,60 @@
 
 
 
+   
        DeleteTask.
-           DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
-           ACCEPT TaskDateInput.
+         
+            DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
+            ACCEPT TaskDateInput.
+        
            DISPLAY "Do you want to continue with the deletion? (Y/N): ".
-           ACCEPT ConfirmDeletion.
-       
+            ACCEPT ConfirmDeletion.
+        
             IF ConfirmDeletion = 'Y'
-            
-       
+                PERFORM DeletionProcess
+            ELSE
+                DISPLAY "Deletion canceled. "
+            END-IF.
+        
+            STOP RUN.
+        
+       DeletionProcess.   
            OPEN INPUT ScheduleFile.
            OPEN OUTPUT TempFile.
-
+       
            MOVE 'N' TO EOF.
-
+       
            PERFORM UNTIL EOF = 'Y'
-            READ ScheduleFile
-                AT END
-                    MOVE 'Y' TO EOF
-                NOT AT END
-                    IF TaskDateInput = TaskDate
-                        DISPLAY "Task Deleted:" TaskDate
-                    ELSE
-                        MOVE TaskDate TO TempTaskDate
-                        MOVE TaskDescription TO TempTaskDescription
-                        WRITE TempRecord
-                    END-IF
+               READ ScheduleFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF TaskDateInput = TaskDate
+                           DISPLAY "Task Deleted:" TaskDate
+                       ELSE
+                           MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDescription TO TempTaskDescription
+                           WRITE TempRecord
+                       END-IF
            END-PERFORM.
-
+       
            CLOSE ScheduleFile.
            CLOSE TempFile.
-
+       
            MOVE 'N' TO EOF.
-
+       
            OPEN OUTPUT ScheduleFile.
            OPEN INPUT TempFile.
-
+       
            PERFORM UNTIL EOF = 'Y'
-            READ TempFile
-                AT END
-                    MOVE 'Y' TO EOF
-                NOT AT END
-                    MOVE TempTaskDate TO TaskDate
-                    MOVE TempTaskDescription TO TaskDescription
-                    WRITE ScheduleRecord
+               READ TempFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TempTaskDate TO TaskDate
+                       MOVE TempTaskDescription TO TaskDescription
+                       WRITE ScheduleRecord
            END-PERFORM.
-
+       
            CLOSE TempFile.
            CLOSE ScheduleFile.
