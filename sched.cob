@@ -33,26 +33,16 @@
        01 ConfirmDeletion     PIC X.
 
        PROCEDURE DIVISION.
-      *    OPEN INPUT ScheduleFile.
-      *    OPEN OUTPUT TempFile.
-
-      *    PERFORM UNTIL EOF = 'Y'
-      *        READ ScheduleFile
-      *            AT END
-      *                MOVE 'Y' TO EOF
-      *            NOT AT END
-      *                MOVE TaskDate TO TempTaskDate
-      *                MOVE TaskDescription TO TempTaskDescription
-      *                WRITE TempRecord
-      *    END-PERFORM.
-
-      *    CLOSE ScheduleFile.
-      *    CLOSE TempFile.
+           DISPLAY "***************************************"
+           DISPLAY "*        NAME NG PROGRAM NATIN        *"
+           DISPLAY "***************************************"
+           DISPLAY "CREATED BY: GROUP 1"
 
            PERFORM DisplayLogin Until Username = ValidUsername AND
            Password = ValidPassword
 
            STOP RUN.
+
 
        DisplayLogin.
            DISPLAY 'Enter username: ' WITH NO ADVANCING.
@@ -62,51 +52,56 @@
            ACCEPT Password.
 
            IF Username = ValidUsername AND Password = ValidPassword
+               DISPLAY " "
                DISPLAY 'Login successful.'
                PERFORM DisplayMenu UNTIL UserChoice = '5'.
            IF NOT(Username = ValidUsername AND Password = ValidPassword)
+               DISPLAY " "
                DISPLAY 'Invalid username or password.'
+               DISPLAY " "
            .
 
+
        DisplayMenu.
-            DISPLAY "Schedule Maker Menu".
-            DISPLAY "1. View Schedule".
-            DISPLAY "2. Add Task".
-            DISPLAY "3. Edit Task".
-            DISPLAY "4. Delete Task".
-            DISPLAY "5. Exit".
-            ACCEPT UserChoice.
-        
-            PERFORM ProcessOption.
+           DISPLAY " "
+           DISPLAY "---------------MAIN MENU---------------".
+           DISPLAY "[1] View Schedule".
+           DISPLAY "[2] Add Task".
+           DISPLAY "[3] Edit Task".
+           DISPLAY "[4] Delete Task".
+           DISPLAY "[5] Exit".
+           DISPLAY "Enter your choice: " WITH NO ADVANCING.
+           ACCEPT UserChoice.
+
+           PERFORM ProcessOption.
         
            
-       
-       
        ProcessOption.
-            EVALUATE UserChoice
-                WHEN '1' PERFORM ViewSchedule
-                WHEN '2' PERFORM AddTask
-                WHEN '3' PERFORM EditTask
-                WHEN '4' PERFORM DeleteTask
-                WHEN '5' PERFORM ConfirmExit
-                WHEN OTHER DISPLAY "Invalid Choice"
-            END-EVALUATE.
+           EVALUATE UserChoice
+               WHEN '1' PERFORM ViewSchedule
+               WHEN '2' PERFORM AddTask
+               WHEN '3' PERFORM EditTask
+               WHEN '4' PERFORM DeleteTask
+               WHEN '5' PERFORM ConfirmExit
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE.
+
+
        ConfirmExit.
-            DISPLAY "Do you want to exit? (Y/N):".
-            ACCEPT UserChoice.
+           DISPLAY "Do you want to exit? (Y/N):".
+           ACCEPT UserChoice.
         
            IF UserChoice = 'Y' 
-                DISPLAY "Exiting Schedule Maker. Thank you!"
-                STOP RUN
-            EXIT.
+               DISPLAY "Exiting Schedule Maker. Thank you!"
+               STOP RUN
+           EXIT.
                 
-           
-               
 
        ViewSchedule.
            MOVE 'N' TO EOF
            OPEN INPUT ScheduleFile.
 
+           DISPLAY " ".
            DISPLAY "Schedule:".
            PERFORM UNTIL EOF = 'Y'
                READ ScheduleFile
@@ -114,10 +109,11 @@
                        MOVE 'Y' TO EOF
                    NOT AT END
                        DISPLAY "Date: " TaskDate
-                               "Task: " TaskDescription
+                               " Task: " TaskDescription
            END-PERFORM.
 
            CLOSE ScheduleFile.
+
 
        AddTask.
            DISPLAY "Enter Task Date (YYYY-MM-DD):".
@@ -132,38 +128,9 @@
 
            DISPLAY "Task Added Successfully".
 
-      *EditTask.
-      *    DISPLAY "Enter Task Date to Edit (YYYY-MM-DD):".
-      *    ACCEPT TaskDate.
-
-      *    OPEN INPUT ScheduleFile.
-      *    OPEN OUTPUT TempFile.
-
-      *    PERFORM UNTIL EOF = 'Y'
-      *        READ ScheduleFile
-      *            AT END
-      *                MOVE 'Y' TO EOF
-      *            NOT AT END
-      *                IF TaskDate = TempTaskDate
-      *                    DISPLAY "Enter Updated Task Description:"
-      *                    ACCEPT TempTaskDescription
-
-      *                    MOVE TaskDate TO TempTaskDate
-      *                    MOVE TempTaskDescription TO TempRecord
-      *                    WRITE TempRecord
-      *                ELSE
-      *                    WRITE ScheduleRecord TO TemRecord
-      *    END-PERFORM.
-
-      *    CLOSE ScheduleFile.
-      *    CLOSE TempFile.
-
-      *    CALL "SYSTEM" USING "mv TempFile ScheduleFile".
-      *    DISPLAY "Task Updated Successfully".
 
        EditTask.
       *    Writing the records from Schedule file to TempFile    
-           
            DISPLAY "Enter Task Date (YYYY-MM-DD) to edit:".
            ACCEPT TaskDateInput.
 
@@ -213,24 +180,20 @@
 
            DISPLAY "Task Updated Successfully".
 
-
-
    
        DeleteTask.
-         
-            DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
-            ACCEPT TaskDateInput.
+           DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
+           ACCEPT TaskDateInput.
         
            DISPLAY "Do you want to continue with the deletion? (Y/N): ".
-            ACCEPT ConfirmDeletion.
+           ACCEPT ConfirmDeletion.
         
-            IF ConfirmDeletion = 'Y'
-                PERFORM DeletionProcess
-            ELSE
-                DISPLAY "Deletion canceled. "
-            END-IF.
-        
-            STOP RUN.
+           IF ConfirmDeletion = 'Y' OR ConfirmDeletion = 'y'
+               PERFORM DeletionProcess
+           ELSE
+               DISPLAY "Deletion canceled. "
+           END-IF.
+
         
        DeletionProcess.   
            OPEN INPUT ScheduleFile.
