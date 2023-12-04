@@ -4,20 +4,30 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT ScheduleFile ASSIGN TO "ScheduleFile.dat"
+           SELECT TaskFile ASSIGN TO "TaskFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT EventFile ASSIGN TO "EventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT TempFile ASSIGN TO "Temp.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
-       FD ScheduleFile.
+       FD TaskFile.
        01 ScheduleRecord.
+           05 TaskID      PIC X(3).
            05 TaskDate       PIC X(10).
            05 TaskDescription PIC X(50).
 
+       FD EventFile.
+       01 EventRecord.
+           05 EventID      PIC X(3).
+           05 EventDate       PIC X(10).
+           05 EventDescription PIC X(50).
+
        FD TempFile.
        01 TempRecord.
+           05 TempTaskID      PIC X(3).
            05 TempTaskDate       PIC X(10).
            05 TempTaskDescription PIC X(50).
 
@@ -63,7 +73,7 @@
 
 
        DisplayMenu.
-           DISPLAY " "
+           DISPLAY " ".
            DISPLAY "---------------MAIN MENU---------------".
            DISPLAY "[1] View Schedule".
            DISPLAY "[2] Add Task".
@@ -78,10 +88,10 @@
            
        ProcessOption.
            EVALUATE UserChoice
-               WHEN '1' PERFORM ViewSchedule
-               WHEN '2' PERFORM AddTask
-               WHEN '3' PERFORM EditTask
-               WHEN '4' PERFORM DeleteTask
+               WHEN '1' PERFORM ViewSched
+               WHEN '2' PERFORM AddSched
+               WHEN '3' PERFORM EditSched
+               WHEN '4' PERFORM DeleteSched
                WHEN '5' PERFORM ConfirmExit
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE.
@@ -97,72 +107,106 @@
            EXIT.
                 
 
-       ViewSchedule.
+       ViewSched.
            MOVE 'N' TO EOF
-           OPEN INPUT ScheduleFile.
+           OPEN INPUT TaskFile.
 
            DISPLAY " ".
            DISPLAY "Schedule:".
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ TaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       DISPLAY "Date: " TaskDate
+                       DISPLAY "Task ID: " TaskID
+                               " Date: " TaskDate
                                " Task: " TaskDescription
            END-PERFORM.
 
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
 
 
-       AddTask.
+       AddSched.
+           DISPLAY " "
+           DISPLAY "Select the type you want:"
+           DISPLAY "[1] Task"
+           DISPLAY "[2] Event"
+           DISPLAY "[3] Back to MAIN MENU"
+           Accept UserChoice.
+      
+           EVALUATE UserChoice
+               WHEN '1' PERFORM AddEvent
+               WHEN '2' PERFORM AddTask
+               WHEN '3' PERFORM ConfirmExit
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+
+       AddEvent.
+      * create an event or a task schedule
            DISPLAY "Enter Task Date (YYYY-MM-DD):".
            ACCEPT TaskDate.
 
            DISPLAY "Enter Task Description:".
            ACCEPT TaskDescription.
 
-           OPEN EXTEND ScheduleFile.
+           OPEN EXTEND TaskFile.
            WRITE ScheduleRecord.
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
+
+           DISPLAY "Task Added Successfully".
+
+       AddTask.
+      * create an event or a task schedule
+           DISPLAY "Enter Task Date (YYYY-MM-DD):".
+           ACCEPT TaskDate.
+
+           DISPLAY "Enter Task Description:".
+           ACCEPT TaskDescription.
+
+           OPEN EXTEND TaskFile.
+           WRITE ScheduleRecord.
+           CLOSE TaskFile.
 
            DISPLAY "Task Added Successfully".
 
 
-       EditTask.
-      *    Writing the records from Schedule file to TempFile    
+       EditSched.
+      *    Writing the records from Schedule file to TempFile
            DISPLAY "Enter Task Date (YYYY-MM-DD) to edit:".
            ACCEPT TaskDateInput.
 
            MOVE 'N' TO EOF
 
-           OPEN INPUT ScheduleFile. 
+           OPEN INPUT TaskFile. 
            OPEN OUTPUT TempFile.
 
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ TaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
                        IF TaskDateInput = TaskDate
                            DISPLAY "Enter updated Task Description:"
                            ACCEPT TempTaskDescription
+                           MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
                            WRITE TempRecord
                        ELSE
+                           MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
                            MOVE TaskDescription TO TempTaskDescription
                            WRITE TempRecord
                        END-IF
            END-PERFORM.
 
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
            CLOSE TempFile.
       
-      *    Writing the records from Tempfile to ScheduleFile
+      *    Writing the records from Tempfile to TaskFile
            MOVE 'N' TO EOF
            
-           OPEN OUTPUT ScheduleFile.
+           OPEN OUTPUT TaskFile.
            OPEN INPUT TempFile.
 
            PERFORM UNTIL EOF = 'Y'
@@ -170,18 +214,19 @@
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
+                       MOVE TempTaskID TO TaskID
                        MOVE TempTaskDate TO TaskDate
                        MOVE TempTaskDescription TO TaskDescription
                        WRITE ScheduleRecord
            END-PERFORM.
 
            CLOSE TempFile.
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
 
            DISPLAY "Task Updated Successfully".
 
    
-       DeleteTask.
+       DeleteSched.
            DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
            ACCEPT TaskDateInput.
         
@@ -196,31 +241,32 @@
 
         
        DeletionProcess.   
-           OPEN INPUT ScheduleFile.
+           OPEN INPUT TaskFile.
            OPEN OUTPUT TempFile.
        
            MOVE 'N' TO EOF.
        
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ TaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
                        IF TaskDateInput = TaskDate
                            DISPLAY "Task Deleted:" TaskDate
                        ELSE
+                           MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
                            MOVE TaskDescription TO TempTaskDescription
                            WRITE TempRecord
                        END-IF
            END-PERFORM.
        
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
            CLOSE TempFile.
        
            MOVE 'N' TO EOF.
        
-           OPEN OUTPUT ScheduleFile.
+           OPEN OUTPUT TaskFile.
            OPEN INPUT TempFile.
        
            PERFORM UNTIL EOF = 'Y'
@@ -228,10 +274,11 @@
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
+                       MOVE TempTaskID TO TaskID
                        MOVE TempTaskDate TO TaskDate
                        MOVE TempTaskDescription TO TaskDescription
                        WRITE ScheduleRecord
            END-PERFORM.
        
            CLOSE TempFile.
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
