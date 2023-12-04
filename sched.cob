@@ -107,6 +107,7 @@
            DISPLAY "[1] Task"
            DISPLAY "[2] Event"
            DISPLAY "[3] Back to MAIN MENU"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING
            Accept UserChoice.
 
 
