@@ -377,7 +377,7 @@
            CLOSE TempTaskFile.
            CLOSE TaskFile.
 
-           DISPLAY "Task Deleted Successfully".
+           DISPLAY "Task Deleted Successfullly".
 
        DeleteEventConfirmation.
 
