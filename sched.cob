@@ -18,17 +18,17 @@
            05 TaskID      PIC X(3).
            05 TaskDate       PIC X(5).
            05 TaskDay      PIC X(10).
-           05 TaskStatus    PIC X(10).
            05 TaskDescription PIC X(25).
+           05 TaskStatus    PIC X(10).
 
        FD EventFile.
        01 EventRecord.
            05 EventID      PIC X(3).
            05 EventDate       PIC X(5).
            05 EventDay         PIC X(10).
-           05 EventStatus      PIC X(10).
            05 EventDescription PIC X(25).
            05 EventLocation PIC X(25).
+           05 EventStatus      PIC X(10).
 
        FD TempFile.
        01 TempRecord.
@@ -114,7 +114,7 @@
            DISPLAY "Do you want to exit? (Y/N):".
            ACCEPT UserChoice.
         
-           IF UserChoice = 'Y' 
+           IF UserChoice = 'Y' OR UserChoice = 'y'
                DISPLAY "Exiting Schedule Maker. Thank you!"
                STOP RUN
            EXIT.
@@ -129,27 +129,6 @@
                WHEN '3' PERFORM DisplayMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
-
-       ViewEvent.
-           MOVE 'N' TO EOF
-           OPEN INPUT EventFile.
-
-           DISPLAY " ".
-           DISPLAY "Schedule:".
-           PERFORM UNTIL EOF = 'Y'
-               READ EventFile
-                   AT END
-                       MOVE 'Y' TO EOF
-                   NOT AT END
-                       DISPLAY "Event ID: " EventID
-                               " Date: " EventDate
-                               " Day: " EventDay
-                               " Status: " EventStatus
-                               " Event: " EventDescription
-                               "Location: " EventLocation
-           END-PERFORM.
-
-           CLOSE EventFile.
 
 
        ViewTask.
@@ -166,11 +145,33 @@
                        DISPLAY "Task ID: " TaskID
                                " Date: " TaskDate
                                " Day: " TaskDay
-                               " Status: " TaskStatus
                                " Task: " TaskDescription
+                               " Status: " TaskStatus
            END-PERFORM.
 
            CLOSE TaskFile.
+
+
+       ViewEvent.
+           MOVE 'N' TO EOF
+           OPEN INPUT EventFile.
+
+           DISPLAY " ".
+           DISPLAY "Schedule:".
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       DISPLAY "Event ID: " EventID
+                               " Date: " EventDate
+                               " Day: " EventDay
+                               " Event: " EventDescription
+                               "Location: " EventLocation
+                               " Status: " EventStatus
+           END-PERFORM.
+
+           CLOSE EventFile.
 
 
        AddSched.
@@ -185,18 +186,17 @@
 
 
        AddTask.
-      * create an event or a task schedule
-           DISPLAY "Enter Task Date (YYYY-MM-DD):".
+           DISPLAY "Enter Task Date (MM-DD):".
            ACCEPT TaskDate.
        
-           DISPLAY "Enter Task Date (YYYY-MM-DD):".
-           ACCEPT TaskDate.
-
-           DISPLAY "Enter Task Date (YYYY-MM-DD):".
-           ACCEPT TaskDate.
+           DISPLAY "Enter Task Day (Monday):".
+           ACCEPT TaskDay.
 
            DISPLAY "Enter Task Description:".
            ACCEPT TaskDescription.
+
+           DISPLAY "Enter Task Status:".
+           ACCEPT TaskStatus.
 
            OPEN EXTEND TaskFile.
            WRITE TaskRecord.
@@ -205,21 +205,27 @@
            DISPLAY "Task Added Successfully".
 
        AddEvent.
-      * create an event or a task schedule
-           DISPLAY "Enter Event Date (YYYY-MM-DD):".
+           DISPLAY "Enter Event Date (MM-DD):".
            ACCEPT EventDate.
+       
+           DISPLAY "Enter Event Day (Monday):".
+           ACCEPT EventDay.
 
-           DISPLAY "Enter Event Date (YYYY-MM-DD):".
-           ACCEPT EventDate.
-
-           DISPLAY "Enter Event Description:".
+           DISPLAY "Enter Event Description (Attending an AWS event.):".
            ACCEPT EventDescription.
 
+           DISPLAY "Enter Event Location (BGC):".
+           ACCEPT EventLocation.
+
+           DISPLAY "Enter Event Status:".
+           ACCEPT EventStatus.
+
            OPEN EXTEND EventFile.
-           WRITE TaskRecord.
+           WRITE EventRecord.
            CLOSE EventFile.
 
            DISPLAY "Event Added Successfully".
+
 
        EditSched.
            PERFORM TypeOption.
