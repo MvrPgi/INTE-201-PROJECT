@@ -8,7 +8,7 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT EventFile ASSIGN TO "EventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT TempFile ASSIGN TO "Temp.dat"
+           SELECT TempTaskFile ASSIGN TO "Temp.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
@@ -30,11 +30,13 @@
            05 EventLocation PIC X(25).
            05 EventStatus      PIC X(10).
 
-       FD TempFile.
-       01 TempRecord.
+       FD TempTaskFile.
+       01 TempTaskRecord.
            05 TempTaskID      PIC X(3).
-           05 TempTaskDate       PIC X(10).
+           05 TempTaskDate       PIC X(5).
+           05 TempTaskDay      PIC X(10).
            05 TempTaskDescription PIC X(25).
+           05 TempTaskStatus   PIC X(10).
 
        WORKING-STORAGE SECTION.
        01 UserChoice PIC X.
@@ -43,8 +45,9 @@
        01 Password PIC X(20).
        01 ValidUsername PIC X(20) VALUE 'user'.
        01 ValidPassword PIC X(20) VALUE 'pass'.
+       01 TaskIDInput PIC X(3).
        01 TaskDateInput PIC X(10).
-       01 TaskDescriptionInput PIC X(50).
+       01 TaskDescriptionInput PIC X(25).
        01 ConfirmDeletion     PIC X.
 
        PROCEDURE DIVISION.
@@ -240,55 +243,61 @@
       
 
        EditTask.
-      *    Writing the records from Schedule file to TempFile
-           DISPLAY "Enter Task Date (YYYY-MM-DD) to edit:".
-           ACCEPT TaskDateInput.
+      *    Writing the records from TaskFile to TempTaskFile
+           DISPLAY "Enter Task ID (999) to edit: "
+           ACCEPT TaskIDInput
 
            MOVE 'N' TO EOF
 
            OPEN INPUT TaskFile. 
-           OPEN OUTPUT TempFile.
+           OPEN OUTPUT TempTaskFile.
 
            PERFORM UNTIL EOF = 'Y'
                READ TaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       IF TaskDateInput = TaskDate
-                           DISPLAY "Enter updated Task Description:"
-                           ACCEPT TempTaskDescription
+                       IF TaskIDInput = TaskID
                            MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
-                           WRITE TempRecord
+                           MOVE TaskDay TO TempTaskDay
+                           DISPLAY "Enter updated Task Description:"
+                           ACCEPT TempTaskDescription
+                           MOVE TaskStatus TO TempTaskStatus 
+                           WRITE TempTaskRecord
                        ELSE
                            MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
                            MOVE TaskDescription TO TempTaskDescription
-                           WRITE TempRecord
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
                        END-IF
            END-PERFORM.
 
            CLOSE TaskFile.
-           CLOSE TempFile.
+           CLOSE TempTaskFile.
       
-      *    Writing the records from Tempfile to TaskFile
+      *    Writing the records from Temptaskfile to TaskFile
            MOVE 'N' TO EOF
            
            OPEN OUTPUT TaskFile.
-           OPEN INPUT TempFile.
+           OPEN INPUT TempTaskFile.
 
            PERFORM UNTIL EOF = 'Y'
-               READ TempFile
+               READ TempTaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
                        MOVE TempTaskID TO TaskID
                        MOVE TempTaskDate TO TaskDate
+                       MOVE TempTaskDay TO TaskDay
                        MOVE TempTaskDescription TO TaskDescription
+                       MOVE TempTaskStatus TO TaskStatus
                        WRITE TaskRecord
            END-PERFORM.
 
-           CLOSE TempFile.
+           CLOSE TempTaskFile.
            CLOSE TaskFile.
 
            DISPLAY "Task Updated Successfully".
@@ -313,7 +322,7 @@
         
        DeletionProcess.   
            OPEN INPUT TaskFile.
-           OPEN OUTPUT TempFile.
+           OPEN OUTPUT TempTaskFile.
        
            MOVE 'N' TO EOF.
        
@@ -328,20 +337,20 @@
                            MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
                            MOVE TaskDescription TO TempTaskDescription
-                           WRITE TempRecord
+                           WRITE TempTaskRecord
                        END-IF
            END-PERFORM.
        
            CLOSE TaskFile.
-           CLOSE TempFile.
+           CLOSE TempTaskFile.
        
            MOVE 'N' TO EOF.
        
            OPEN OUTPUT TaskFile.
-           OPEN INPUT TempFile.
+           OPEN INPUT TempTaskFile.
        
            PERFORM UNTIL EOF = 'Y'
-               READ TempFile
+               READ TempTaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
@@ -351,5 +360,5 @@
                        WRITE TaskRecord
            END-PERFORM.
        
-           CLOSE TempFile.
+           CLOSE TempTaskFile.
            CLOSE TaskFile.
