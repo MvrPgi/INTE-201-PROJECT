@@ -307,48 +307,60 @@
 
    
        DeleteSched.
-           DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
-           ACCEPT TaskDateInput.
-        
+           PERFORM TypeOption.
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM DeleteTaskConfirmation
+               WHEN '2' PERFORM DeleteEventConfirmation
+               WHEN '3' PERFORM DisplayMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+       DeleteTaskConfirmation.
+           DISPLAY "Enter Task ID to delete:".
+           ACCEPT TaskIDInput.
+
            DISPLAY "Do you want to continue with the deletion? (Y/N): ".
-           ACCEPT ConfirmDeletion.
-        
-           IF ConfirmDeletion = 'Y' OR ConfirmDeletion = 'y'
-               PERFORM DeletionProcess
+           ACCEPT UserChoice.
+
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               PERFORM DeleteTask
            ELSE
-               DISPLAY "Deletion canceled. "
+               DISPLAY "Deletion canceled."
            END-IF.
 
-        
-       DeletionProcess.   
+
+       DeleteTask.
            OPEN INPUT TaskFile.
            OPEN OUTPUT TempTaskFile.
-       
+
            MOVE 'N' TO EOF.
-       
+
            PERFORM UNTIL EOF = 'Y'
                READ TaskFile
-                   AT END
-                       MOVE 'Y' TO EOF
-                   NOT AT END
-                       IF TaskDateInput = TaskDate
-                           DISPLAY "Task Deleted:" TaskDate
-                       ELSE
-                           MOVE TaskID TO TempTaskID
-                           MOVE TaskDate TO TempTaskDate
-                           MOVE TaskDescription TO TempTaskDescription
-                           WRITE TempTaskRecord
-                       END-IF
+           AT END
+               MOVE 'Y' TO EOF
+           NOT AT END
+               IF TaskIDInput = TaskID
+                   DISPLAY "Task Deleted: " TaskIDInput
+               ELSE
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus
+                   WRITE TempTaskRecord
+               END-IF
            END-PERFORM.
-       
+
            CLOSE TaskFile.
            CLOSE TempTaskFile.
-       
+
            MOVE 'N' TO EOF.
-       
+
            OPEN OUTPUT TaskFile.
            OPEN INPUT TempTaskFile.
-       
+
            PERFORM UNTIL EOF = 'Y'
                READ TempTaskFile
                    AT END
@@ -356,9 +368,17 @@
                    NOT AT END
                        MOVE TempTaskID TO TaskID
                        MOVE TempTaskDate TO TaskDate
+                       MOVE TempTaskDay TO TaskDay
                        MOVE TempTaskDescription TO TaskDescription
+                       MOVE TempTaskStatus TO TaskStatus
                        WRITE TaskRecord
            END-PERFORM.
-       
+
            CLOSE TempTaskFile.
            CLOSE TaskFile.
+
+           DISPLAY "Task Deleted Successfully".
+
+       DeleteEventConfirmation.
+
+      *DeleteEvent.
