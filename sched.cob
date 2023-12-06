@@ -250,48 +250,86 @@
 
            EVALUATE UserChoice
                WHEN '1' PERFORM EditTask
-               WHEN '2' PERFORM EditTask
+               WHEN '2' PERFORM EditEvent
                WHEN '3' PERFORM DisplayMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
       
+       EditTaskOptions.    
+           DISPLAY " "
+           DISPLAY "What do you want to edit? "
+           DISPLAY "[1] Task Date"
+           DISPLAY "[2] Task Day"
+           DISPLAY "[3] Task Description"
+           DISPLAY "[5] Task Status"
+           DISPLAY "[6] Back to MAIN MENU"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING
+           Accept UserChoice.
 
-       EditTask.
-      *    Writing the records from TaskFile to TempTaskFile
-           DISPLAY "Enter Task ID (999) to edit: "
-           ACCEPT TaskIDInput
+           EVALUATE UserChoice
+               WHEN '1' PERFORM EditTaskDate
+               WHEN '2' PERFORM EditTaskDate
+               WHEN '3' PERFORM EditTaskDescription
+               WHEN '4' PERFORM EditTaskDescription
+               WHEN '5' PERFORM DisplayMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE.
+       EditEventOptions.    
+           DISPLAY " "
+           DISPLAY "What do you want to edit? "
+           DISPLAY "[1] Event Date"
+           DISPLAY "[2] Event Day"
+           DISPLAY "[3] Event Description"
+           DISPLAY "[5] Event Status"
+           DISPLAY "[6] Back to MAIN MENU"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING
+           Accept UserChoice.
 
+           EVALUATE UserChoice
+               WHEN '1' PERFORM EditEventDate
+               WHEN '2' PERFORM EditEventDescription
+      *        WHEN '4' PERFORM EditEventDescription
+      *        WHEN '5' PERFORM DisplayMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE.
+
+       EditEvent.
+      *    Writing the records from EventFile to TempEventFile
+            IF EOF = 'N'
+               DISPLAY "Enter Event ID (999) to edit: "
+               ACCEPT EventIDInput
+               PERFORM EditEventOptions
+           END-IF.
+      *    Writing the records from TempEventfile to EventFile
            MOVE 'N' TO EOF
-
-           OPEN INPUT TaskFile. 
-           OPEN OUTPUT TempTaskFile.
+           
+           OPEN OUTPUT EventFile.
+           OPEN INPUT TempEventFile.
 
            PERFORM UNTIL EOF = 'Y'
-               READ TaskFile
+               READ TempEventFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       IF TaskIDInput = TaskID
-                           MOVE TaskID TO TempTaskID
-                           MOVE TaskDate TO TempTaskDate
-                           MOVE TaskDay TO TempTaskDay
-                           DISPLAY "Enter updated Task Description:"
-                           ACCEPT TempTaskDescription
-                           MOVE TaskStatus TO TempTaskStatus 
-                           WRITE TempTaskRecord
-                       ELSE
-                           MOVE TaskID TO TempTaskID
-                           MOVE TaskDate TO TempTaskDate
-                           MOVE TaskDay TO TempTaskDay
-                           MOVE TaskDescription TO TempTaskDescription
-                           MOVE TaskStatus TO TempTaskStatus
-                           WRITE TempTaskRecord
-                       END-IF
+                       MOVE TempEventID TO EventID
+                       MOVE TempEventDate TO EventDate
+                       MOVE TempEventDay TO EventDay
+                       MOVE TempEventDescription TO EventDescription
+                       MOVE TempEventStatus TO EventStatus
+                       WRITE EventRecord
            END-PERFORM.
 
-           CLOSE TaskFile.
-           CLOSE TempTaskFile.
-      
+           CLOSE TempEventFile.
+           CLOSE EventFile.
+
+           DISPLAY "Task Updated Successfully".
+       EditTask.
+      *    Writing the records from TaskFile to TempTaskFile
+            IF EOF = 'N'
+               DISPLAY "Enter Task ID (999) to edit: "
+               ACCEPT TaskIDInput
+               PERFORM EditTaskOptions
+           END-IF.
       *    Writing the records from Temptaskfile to TaskFile
            MOVE 'N' TO EOF
            
@@ -316,10 +354,153 @@
 
            DISPLAY "Task Updated Successfully".
 
-       
-       EditEvent.
+       EditTaskDate.
+      *    MOVE 'N' TO EOF
 
-   
+           OPEN INPUT TaskFile. 
+           OPEN OUTPUT TempTaskFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF TaskIDInput = TaskID
+      *                    PERFORM EditTaskOptions
+                           MOVE TaskID TO TempTaskID
+                           DISPLAY "Enter updated Task Date:"
+                           ACCEPT TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
+                           MOVE TaskDescription TO TempTaskDescription
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
+                       ELSE
+                           MOVE TaskID TO TempTaskID
+                           MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
+                           MOVE TaskDescription TO TempTaskDescription
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE TaskFile.
+           CLOSE TempTaskFile.
+
+           PERFORM EditTask.
+       
+      *EditTaskDay.
+      *    MOVE TaskID TO TempTaskID
+      *    MOVE TaskDate TO TempTaskDate
+      *    DISPLAY "Enter updated Task Day:"
+      *    ACCEPT TempTaskDay
+      *    MOVE TaskDescription TO TempTaskDescription
+      *    MOVE TaskStatus TO TempTaskStatus 
+
+       EditTaskDescription.
+           MOVE 'N' TO EOF
+
+           OPEN INPUT TaskFile. 
+           OPEN OUTPUT TempTaskFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF TaskIDInput = TaskID
+      *                    PERFORM EditTaskOptions
+                           MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
+                           DISPLAY "Enter updated Task Description:"
+                           ACCEPT TempTaskDescription
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
+                       ELSE
+                           MOVE TaskID TO TempTaskID
+                           MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
+                           MOVE TaskDescription TO TempTaskDescription
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE TaskFile.
+           CLOSE TempTaskFile.
+
+       EditEventDate.
+      *    MOVE 'N' TO EOF
+
+           OPEN INPUT EventFile. 
+           OPEN OUTPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF EventIDInput = EventID
+      *                    PERFORM EditEventOptions
+                           MOVE EventID TO TempEventID
+                           DISPLAY "Enter updated Event Date:"
+                           ACCEPT TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       ELSE
+                           MOVE EventID TO TempEventID
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+      *    
+       EditEventDescription.
+           MOVE 'N' TO EOF
+
+           OPEN INPUT EventFile. 
+           OPEN OUTPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF EventIDInput = EventID
+                           PERFORM EditEventOptions
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           DISPLAY "Enter updated Event Description:"
+                           ACCEPT TempEventDescription
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       ELSE
+                           MOVE EventID TO TempEventID
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+
+      *    
+    
+     
+      
+
+
+    
        DeleteSched.
            PERFORM TypeOption.
 
