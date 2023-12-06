@@ -278,8 +278,8 @@
            DISPLAY " "
            DISPLAY "What do you want to edit? "
            DISPLAY "[1] Event Date"
-           DISPLAY "[2] Event Day"
-           DISPLAY "[3] Event Description"
+           DISPLAY "[2] Event Description"
+           DISPLAY "[3] Event Day"
            DISPLAY "[5] Event Status"
            DISPLAY "[6] Back to MAIN MENU"
            DISPLAY "Enter your choice: " WITH NO ADVANCING
@@ -288,7 +288,7 @@
            EVALUATE UserChoice
                WHEN '1' PERFORM EditEventDate
                WHEN '2' PERFORM EditEventDescription
-      *        WHEN '4' PERFORM EditEventDescription
+               WHEN '3' PERFORM EditEventDay
       *        WHEN '5' PERFORM DisplayMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE.
@@ -475,10 +475,42 @@
                    NOT AT END
                        IF EventIDInput = EventID
                            PERFORM EditEventOptions
-                           MOVE EventDate TO TempEventDate
-                           MOVE EventDay TO TempEventDay
+      *                    MOVE EventDate TO TempEventDate
+      *                    MOVE EventDay TO TempEventDay
                            DISPLAY "Enter updated Event Description:"
                            ACCEPT TempEventDescription
+      *                    MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       ELSE
+                           MOVE EventID TO TempEventID
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+      *                    
+   
+                           WRITE TempEventRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+       EditEventDay.
+           MOVE 'N' TO EOF
+
+           OPEN INPUT EventFile. 
+           OPEN OUTPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF EventIDInput = EventID
+                           PERFORM EditEventOptions
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           DISPLAY "Enter Updated Day Description:"
+                           ACCEPT TempEventDay
                            MOVE EventStatus TO TempEventStatus
                            WRITE TempEventRecord
                        ELSE
