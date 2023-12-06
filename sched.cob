@@ -63,6 +63,7 @@
        01  EventDateInput PIC X(10).
        01  EventDescriptionInput PIC X(25).
        01  ConfirmDeletion     PIC X.
+       01  EditOption PIC X.
 
        PROCEDURE DIVISION.
            DISPLAY "***************************************"
@@ -250,7 +251,7 @@
 
            EVALUATE UserChoice
                WHEN '1' PERFORM EditTask
-               WHEN '2' PERFORM EditTask
+               WHEN '2' PERFORM EditEvent
                WHEN '3' PERFORM DisplayMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
@@ -260,6 +261,13 @@
       *    Writing the records from TaskFile to TempTaskFile
            DISPLAY "Enter Task ID (999) to edit: "
            ACCEPT TaskIDInput
+
+           DISPLAY "Select the field to edit:"
+           DISPLAY "1. Task Date"
+           DISPLAY "2. Task Day"
+           DISPLAY "3. Task Description"
+           DISPLAY "4. Task Status"
+           ACCEPT EditOption
 
            MOVE 'N' TO EOF
 
@@ -272,12 +280,7 @@
                        MOVE 'Y' TO EOF
                    NOT AT END
                        IF TaskIDInput = TaskID
-                           MOVE TaskID TO TempTaskID
-                           MOVE TaskDate TO TempTaskDate
-                           MOVE TaskDay TO TempTaskDay
-                           DISPLAY "Enter updated Task Description:"
-                           ACCEPT TempTaskDescription
-                           MOVE TaskStatus TO TempTaskStatus 
+                           PERFORM EditTaskOptions
                            WRITE TempTaskRecord
                        ELSE
                            MOVE TaskID TO TempTaskID
@@ -316,8 +319,151 @@
 
            DISPLAY "Task Updated Successfully".
 
+       EditTaskOptions.
+           EVALUATE EditOption
+               WHEN 1
+                   DISPLAY "Enter updated Task Date:"
+                   ACCEPT TempTaskDate
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 2
+                   DISPLAY "Enter updated Task Day:"
+                   ACCEPT TempTaskDay
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 3
+                   DISPLAY "Enter updated Task Description:"
+                   ACCEPT TempTaskDescription
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 4
+                   DISPLAY "Enter updated Task Status:"
+                   ACCEPT TempTaskStatus
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+               WHEN OTHER
+                   DISPLAY "Invalid option. No updates performed."
+           END-EVALUATE.
+
        
        EditEvent.
+      *    Writing the records from EventFile to TempEventFile
+           DISPLAY "Enter Event ID (999) to edit: "
+           ACCEPT EventIDInput
+
+           DISPLAY "Select the field to edit:"
+           DISPLAY "1. Event Date"
+           DISPLAY "2. Event Day"
+           DISPLAY "3. Event Description"
+           DISPLAY "4. Event Location"
+           DISPLAY "5. Event Status"
+           ACCEPT EditOption
+
+           MOVE 'N' TO EOF
+
+           OPEN INPUT EventFile. 
+           OPEN OUTPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF EventIDInput = EventID
+                           PERFORM EditEventOptions
+                           WRITE TempEventRecord
+                       ELSE
+                           MOVE EventID TO TempEventID
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+                           MOVE EventLocation TO TempEventLocation
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
+                       END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+      
+      *    Writing the records from TempEventfile to EventFile
+           MOVE 'N' TO EOF
+           
+           OPEN OUTPUT EventFile.
+           OPEN INPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TempEventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TempEventID TO EventID
+                       MOVE TempEventDate TO EventDate
+                       MOVE TempEventDay TO EventDay
+                       MOVE TempEventDescription TO EventDescription
+                       MOVE TempEventLocation TO EventLocation
+                       MOVE TempEventStatus TO EventStatus
+                       WRITE EventRecord
+           END-PERFORM.
+
+           CLOSE TempEventFile.
+           CLOSE EventFile.
+
+           DISPLAY "Event Updated Successfully".
+
+       EditEventOptions.
+           EVALUATE EditOption
+               WHEN 1
+                   DISPLAY "Enter updated Event Date:"
+                   ACCEPT TempEventDate
+                   MOVE EventID TO TempEventID
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 2
+                   DISPLAY "Enter updated Event Day:"
+                   ACCEPT TempEventDay
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 3
+                   DISPLAY "Enter updated Event Description:"
+                   ACCEPT TempEventDescription
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 4
+                   DISPLAY "Enter updated Event Location:"
+                   ACCEPT TempEventLocation
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 5
+                   DISPLAY "Enter updated Event Status:"
+                   ACCEPT TempEventStatus
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+               WHEN OTHER
+                   DISPLAY "Invalid option. No updates performed."
+           END-EVALUATE.
 
    
        DeleteSched.
@@ -457,3 +603,7 @@
            CLOSE EventFile.
 
            DISPLAY "Event Deleted Successfullly".
+
+      *    output file
+      *    signup
+      
