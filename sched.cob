@@ -475,11 +475,11 @@
                    NOT AT END
                        IF EventIDInput = EventID
                            PERFORM EditEventOptions
-      *                    MOVE EventDate TO TempEventDate
-      *                    MOVE EventDay TO TempEventDay
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
                            DISPLAY "Enter updated Event Description:"
                            ACCEPT TempEventDescription
-      *                    MOVE EventStatus TO TempEventStatus
+                           MOVE EventStatus TO TempEventStatus
                            WRITE TempEventRecord
                        ELSE
                            MOVE EventID TO TempEventID
