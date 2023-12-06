@@ -8,47 +8,61 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT EventFile ASSIGN TO "EventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT TempTaskFile ASSIGN TO "Temp.dat"
+           SELECT TempTaskFile ASSIGN TO "TempTaskFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT TempEventFile ASSIGN TO "TempEventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
        FD TaskFile.
        01 TaskRecord.
-           05 TaskID      PIC X(3).
-           05 TaskDate       PIC X(5).
-           05 TaskDay      PIC X(10).
-           05 TaskDescription PIC X(25).
-           05 TaskStatus    PIC X(10).
+           05 TaskID               PIC X(3).
+           05 TaskDate             PIC X(5).
+           05 TaskDay              PIC X(10).
+           05 TaskDescription      PIC X(25).
+           05 TaskStatus           PIC X(10).
 
        FD EventFile.
        01 EventRecord.
-           05 EventID      PIC X(3).
-           05 EventDate       PIC X(5).
-           05 EventDay         PIC X(10).
-           05 EventDescription PIC X(25).
-           05 EventLocation PIC X(25).
-           05 EventStatus      PIC X(10).
+           05 EventID              PIC X(3).
+           05 EventDate            PIC X(5).
+           05 EventDay             PIC X(10).
+           05 EventDescription     PIC X(25).
+           05 EventLocation        PIC X(25).
+           05 EventStatus          PIC X(10).
 
        FD TempTaskFile.
        01 TempTaskRecord.
-           05 TempTaskID      PIC X(3).
-           05 TempTaskDate       PIC X(5).
-           05 TempTaskDay      PIC X(10).
-           05 TempTaskDescription PIC X(25).
-           05 TempTaskStatus   PIC X(10).
+           05 TempTaskID           PIC X(3).
+           05 TempTaskDate         PIC X(5).
+           05 TempTaskDay          PIC X(10).
+           05 TempTaskDescription  PIC X(25).
+           05 TempTaskStatus       PIC X(10).
+       
+       FD TempEventFile.
+       01 TempEventRecord.
+           05 TempEventID          PIC X(3).
+           05 TempEventDate        PIC X(5).
+           05 TempEventDay         PIC X(10).
+           05 TempEventDescription PIC X(25).
+           05 TempEventLocation    PIC X(25).
+           05 TempEventStatus      PIC X(10).
 
        WORKING-STORAGE SECTION.
-       01 UserChoice PIC X.
-       01 EOF        PIC X VALUE 'N'.
-       01 Username PIC X(20).
-       01 Password PIC X(20).
-       01 ValidUsername PIC X(20) VALUE 'user'.
-       01 ValidPassword PIC X(20) VALUE 'pass'.
-       01 TaskIDInput PIC X(3).
-       01 TaskDateInput PIC X(10).
-       01 TaskDescriptionInput PIC X(25).
-       01 ConfirmDeletion     PIC X.
+       01  UserChoice PIC X.
+       01  EOF        PIC X VALUE 'N'.
+       01  Username PIC X(20).
+       01  Password PIC X(20).
+       01  ValidUsername PIC X(20) VALUE 'user'.
+       01  ValidPassword PIC X(20) VALUE 'pass'.
+       01  TaskIDInput PIC X(3).
+       01  TaskDateInput PIC X(10).
+       01  TaskDescriptionInput PIC X(25).
+       01  EventIDInput PIC X(3).
+       01  EventDateInput PIC X(10).
+       01  EventDescriptionInput PIC X(25).
+       01  ConfirmDeletion     PIC X.
 
        PROCEDURE DIVISION.
            DISPLAY "***************************************"
@@ -303,7 +317,7 @@
            DISPLAY "Task Updated Successfully".
 
        
-      *EditEvent.
+       EditEvent.
 
    
        DeleteSched.
@@ -380,5 +394,66 @@
            DISPLAY "Task Deleted Successfullly".
 
        DeleteEventConfirmation.
+           DISPLAY "Enter Event ID to delete:".
+           ACCEPT EventIDInput.
 
-      *DeleteEvent.
+           DISPLAY "Do you want to continue with the deletion? (Y/N): ".
+           ACCEPT UserChoice.
+
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               PERFORM DeleteEvent
+           ELSE
+               DISPLAY "Deletion canceled."
+           END-IF.
+           
+
+       DeleteEvent.
+           OPEN INPUT EventFile.
+           OPEN OUTPUT TempEventFile.
+
+           MOVE 'N' TO EOF.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+           AT END
+               MOVE 'Y' TO EOF
+           NOT AT END
+               IF EventIDInput = EventID
+                   DISPLAY "Event Deleted: " EventIDInput
+               ELSE
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus
+                   WRITE TempEventRecord
+               END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+
+           MOVE 'N' TO EOF.
+
+           OPEN OUTPUT EventFile.
+           OPEN INPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TempEventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TempEventID TO EventID
+                       MOVE TempEventDate TO EventDate
+                       MOVE TempEventDay TO EventDay
+                       MOVE TempEventDescription TO EventDescription
+                       MOVE TempEventLocation TO EventLocation
+                       MOVE TempEventStatus TO EventStatus
+                       WRITE EventRecord
+           END-PERFORM.
+
+           CLOSE TempEventFile.
+           CLOSE EventFile.
+
+           DISPLAY "Event Deleted Successfullly".
