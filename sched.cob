@@ -12,6 +12,8 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT TempEventFile ASSIGN TO "TempEventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT AccountFile ASSIGN TO "AccountFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
@@ -48,6 +50,11 @@
            05 TempEventDescription PIC X(25).
            05 TempEventLocation    PIC X(25).
            05 TempEventStatus      PIC X(10).
+       
+       FD AccountFile.
+       01 AccountFileRecord.
+           05 UsernameSignup       PIC X(20).
+           05 PasswordSignup       PIC X(20).
 
        WORKING-STORAGE SECTION.
        01  UserChoice PIC X.
@@ -56,6 +63,7 @@
        01  Password PIC X(20).
        01  ValidUsername PIC X(20) VALUE 'user'.
        01  ValidPassword PIC X(20) VALUE 'pass'.
+       01  AccountFound PIC X VALUE 'N'.
        01  TaskIDInput PIC X(3).
        01  TaskDateInput PIC X(10).
        01  TaskDescriptionInput PIC X(25).
@@ -65,44 +73,95 @@
        01  ConfirmDeletion     PIC X.
        01  EditOption PIC X.
 
-       PROCEDURE DIVISION.
-           DISPLAY "***************************************"
-           DISPLAY "*        NAME NG PROGRAM NATIN        *"
-           DISPLAY "***************************************"
-           DISPLAY "CREATED BY: GROUP 1"
 
-           PERFORM DisplayLogin Until Username = ValidUsername AND
-           Password = ValidPassword
+       PROCEDURE DIVISION.
+           DISPLAY "****************************************"
+           DISPLAY "*             TALA-ADLAWAN             *"
+           DISPLAY "****************************************"
+           DISPLAY "CREATED BY: GROUP 1"
+           
+           PERFORM AccountMenu
 
            STOP RUN.
 
+       AccountMenu.
+           DISPLAY " "
+           DISPLAY "--------------ACCOUNT MENU--------------"
+           DISPLAY "[1] Create an account"
+           DISPLAY "[2] Login"
+           DISPLAY "[3] Exit the program"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING.
+           ACCEPT UserChoice
 
-       DisplayLogin.
+           EVALUATE UserChoice
+               WHEN '1' PERFORM Signup
+               WHEN '2' PERFORM Login
+               WHEN '3' PERFORM ConfirmExit
+               WHEN OTHER 
+                   DISPLAY " " 
+                   DISPLAY "Invalid Choice"
+                   PERFORM AccountMenu
+           END-EVALUATE.
+       
+       Signup.
+           DISPLAY " "
+           DISPLAY 'Create a username: ' WITH NO ADVANCING.
+           ACCEPT UsernameSignup.
+
+           DISPLAY 'Create a password: ' WITH NO ADVANCING.
+           ACCEPT PasswordSignup.
+
+           OPEN EXTEND AccountFile.
+           WRITE AccountFileRecord.
+           CLOSE AccountFile.
+
+           PERFORM AccountMenu.
+
+       Login.
+           DISPLAY ' '
            DISPLAY 'Enter username: ' WITH NO ADVANCING.
            ACCEPT Username.
 
            DISPLAY 'Enter password: ' WITH NO ADVANCING.
            ACCEPT Password.
+       
+           OPEN INPUT AccountFile
+           
+      *    PARA MAINITIALIZE UNG VALUES
+           MOVE 'N' TO EOF
+           MOVE 'N' TO AccountFound
 
-           IF Username = ValidUsername AND Password = ValidPassword
-               DISPLAY " "
-               DISPLAY 'Login successful.'
-               PERFORM DisplayMenu UNTIL UserChoice = '5'.
-           IF NOT(Username = ValidUsername AND Password = ValidPassword)
-               DISPLAY " "
-               DISPLAY 'Invalid username or password.'
-               DISPLAY " "
-           .
+           PERFORM UNTIL EOF = 'Y'
+               READ AccountFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       IF Username = UsernameSignup 
+                       AND Password = PasswordSignup
+                           DISPLAY " "
+                           DISPLAY 'Login successful.'
+                           MOVE 'Y' TO AccountFound
+                           CLOSE AccountFile
+                           PERFORM MainMenu
+                       END-IF
+           END-PERFORM
 
+           CLOSE AccountFile.
 
-       DisplayMenu.
+           IF AccountFound = 'N'
+               PERFORM Login
+           END-IF.
+
+           
+
+       MainMenu.
            DISPLAY " ".
            DISPLAY "---------------MAIN MENU---------------".
            DISPLAY "[1] View Schedule".
            DISPLAY "[2] Add Schedule".
            DISPLAY "[3] Edit Schedule".
            DISPLAY "[4] Delete Schedule".
-           DISPLAY "[5] Exit".
+           DISPLAY "[5] Logout".
            DISPLAY "Enter your choice: " WITH NO ADVANCING.
            ACCEPT UserChoice.
 
@@ -115,7 +174,7 @@
                WHEN '2' PERFORM AddSched
                WHEN '3' PERFORM EditSched
                WHEN '4' PERFORM DeleteSched
-               WHEN '5' PERFORM ConfirmExit
+               WHEN '5' PERFORM AccountMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE.
       
@@ -145,9 +204,11 @@
            EVALUATE UserChoice
                WHEN '1' PERFORM ViewTask
                WHEN '2' PERFORM ViewEvent
-               WHEN '3' PERFORM DisplayMenu
+               WHEN '3' PERFORM MainMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
+
+           PERFORM MainMenu.
 
 
        ViewTask.
@@ -169,6 +230,8 @@
            END-PERFORM.
 
            CLOSE TaskFile.
+
+           PERFORM MainMenu.
 
 
        ViewEvent.
@@ -192,6 +255,8 @@
 
            CLOSE EventFile.
 
+           PERFORM MainMenu.
+
 
        AddSched.
            PERFORM TypeOption.
@@ -199,9 +264,11 @@
            EVALUATE UserChoice
                WHEN '1' PERFORM AddTask
                WHEN '2' PERFORM AddEvent
-               WHEN '3' PERFORM DisplayMenu
+               WHEN '3' PERFORM MainMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
+
+           PERFORM MainMenu.
 
 
        AddTask.
@@ -222,6 +289,8 @@
            CLOSE TaskFile.
 
            DISPLAY "Task Added Successfully".
+
+           PERFORM MainMenu.
 
        AddEvent.
            DISPLAY "Enter Event Date (MM-DD):".
@@ -245,6 +314,8 @@
 
            DISPLAY "Event Added Successfully".
 
+           PERFORM MainMenu.
+
 
        EditSched.
            PERFORM TypeOption.
@@ -252,9 +323,11 @@
            EVALUATE UserChoice
                WHEN '1' PERFORM EditTask
                WHEN '2' PERFORM EditEvent
-               WHEN '3' PERFORM DisplayMenu
+               WHEN '3' PERFORM MainMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
+
+           PERFORM MainMenu.
       
 
        EditTask.
@@ -318,6 +391,8 @@
            CLOSE TaskFile.
 
            DISPLAY "Task Updated Successfully".
+
+           PERFORM MainMenu.
 
        EditTaskOptions.
            EVALUATE EditOption
@@ -419,6 +494,8 @@
 
            DISPLAY "Event Updated Successfully".
 
+           PERFORM MainMenu.
+
        EditEventOptions.
            EVALUATE EditOption
                WHEN 1
@@ -472,9 +549,11 @@
            EVALUATE UserChoice
                WHEN '1' PERFORM DeleteTaskConfirmation
                WHEN '2' PERFORM DeleteEventConfirmation
-               WHEN '3' PERFORM DisplayMenu
+               WHEN '3' PERFORM MainMenu
                WHEN OTHER DISPLAY "Invalid Choice"
            END-EVALUATE. 
+
+           PERFORM MainMenu.
 
        DeleteTaskConfirmation.
            DISPLAY "Enter Task ID to delete:".
@@ -538,6 +617,8 @@
            CLOSE TaskFile.
 
            DISPLAY "Task Deleted Successfullly".
+
+           PERFORM MainMenu.
 
        DeleteEventConfirmation.
            DISPLAY "Enter Event ID to delete:".
@@ -604,6 +685,7 @@
 
            DISPLAY "Event Deleted Successfullly".
 
+           PERFORM MainMenu.
+
       *    output file
       *    signup
-      
