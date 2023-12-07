@@ -24,11 +24,11 @@
        01  OutRecord.
            05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputID                PIC X(3).
-           05 FILL                    PIC X(10) VALUE SPACE.
+           05 FILL                    PIC X(15) VALUE SPACE.
            05 OutputDate              PIC X(5).
-           05 FILL                    PIC X(10) VALUE SPACE.
+           05 FILL                    PIC X(20) VALUE SPACE.
            05 OutputDay               PIC X(10).
-           05 FILL                    PIC X(3) VALUE SPACE.
+           05 FILL                    PIC X(25) VALUE SPACE.
            05 OutputDescription       PIC X(25).
            05 FILL                    PIC X(30) VALUE SPACE.
 
@@ -59,9 +59,9 @@
            05 EventDay             PIC X(10).
            05 FILL         PIC X(10) VALUE SPACE.
            05 EventDescription     PIC X(25).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(40) VALUE SPACE.
            05 EventLocation        PIC X(25).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(30) VALUE SPACE.
            05 EventStatus          PIC X(10).
            05 FILL         PIC X(10) VALUE SPACE.
 
@@ -112,7 +112,7 @@
            05 OutputDayHeader        PIC X(10) VALUE "DAY".
            05 FILL                   PIC X(30) VALUE SPACE.
            05 OutputDescriptionHeader PIC X(25) VALUE "DESCRIPTION".
-           05 FILL                   PIC X(10) VALUE SPACE.
+           05 FILL                   PIC X(30) VALUE SPACE.
            
        01  PRINT-LINE                  PIC X(132).
 
