@@ -133,7 +133,7 @@
            DISPLAY "CREATED BY: GROUP 1"
            OPEN OUTPUT OutFile.
            PERFORM WRITE-HEADER.
-           PERFORM WRITE-BODY.
+      *    PERFORM WRITE-BODY.
            CLOSE OutFile.
 
            PERFORM AccountMenu
@@ -151,28 +151,28 @@
            WRITE OutRecord.
           
 
-       WRITE-BODY.
-           OPEN INPUT TaskFile.
-           PERFORM UNTIL EOF = 'Y'
-               READ TaskFile
-                   AT END
-                       MOVE 'Y' TO EOF
-                   NOT AT END
-                       PERFORM COPY-RECORD
-               END-READ
-           END-PERFORM.
-       
-                  CLOSE TaskFile.
-       
-       COPY-RECORD.
-           MOVE TaskID TO OutputBodyID.
-           MOVE TaskDate TO OutputBodyDate.
-           MOVE TaskDay TO OutputBodyDay.
-           MOVE TaskDescription TO OutputBodyDescription.
-           WRITE OutRecord.
+      *WRITE-BODY.
+      *    OPEN INPUT TaskFile.
+      *    PERFORM UNTIL EOF = 'Y'
+      *        READ TaskFile
+      *            AT END
+      *                MOVE 'Y' TO EOF
+      *            NOT AT END
+      *                PERFORM COPY-RECORD
+      *        END-READ
+      *    END-PERFORM.
+      *
+      *           CLOSE TaskFile.
+      *
+      *COPY-RECORD.
+      *    MOVE TaskID TO OutputBodyID.
+      *    MOVE TaskDate TO OutputBodyDate.
+      *    MOVE TaskDay TO OutputBodyDay.
+      *    MOVE TaskDescription TO OutputBodyDescription.
+      *    WRITE OutRecord.
 
     
-          
+      *   
 
            
 
