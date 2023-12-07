@@ -28,40 +28,51 @@
            05 OutputDate              PIC X(5).
            05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputDay               PIC X(10).
-           05 FILL                    PIC X(3) VALUE SPACE.
+           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputDescription       PIC X(25).
-           05 FILL                    PIC X(30) VALUE SPACE.
+           05 FILL                    PIC X(10) VALUE SPACE.
+         
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputBodyID                PIC X(3).
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputBodyDate              PIC X(5).
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputBodyDay               PIC X(10).
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputBodyDescription       PIC X(25).
+           05 FILL                    PIC X(10) VALUE SPACE.
+
 
        
 
        FD TaskFile.
        
        01 TaskRecord.
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 TaskID               PIC X(3).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 TaskDate             PIC X(5).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 TaskDay              PIC X(10).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 TaskDescription      PIC X(25).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 TaskStatus           PIC X(10).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
 
        FD EventFile.
        01 EventRecord.
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(5) VALUE SPACE.
            05 EventID              PIC X(3).
            05 FILL         PIC X(10) VALUE SPACE.
            05 EventDate            PIC X(5).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(15) VALUE SPACE.
            05 EventDay             PIC X(10).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(20) VALUE SPACE.
            05 EventDescription     PIC X(25).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(25) VALUE SPACE.
            05 EventLocation        PIC X(25).
-           05 FILL         PIC X(10) VALUE SPACE.
+           05 FILL         PIC X(30) VALUE SPACE.
            05 EventStatus          PIC X(10).
            05 FILL         PIC X(10) VALUE SPACE.
 
@@ -104,15 +115,10 @@
        01  ConfirmDeletion                 PIC X.
        01  EditOption          PIC X.
        01  HeaderOutput.
-           05 FILL                   PIC X(5) VALUE SPACE.
            05 OutputIDHeader         PIC X(3) VALUE "ID".
-           05 FILL                   PIC X(10) VALUE SPACE.
            05 OutputDateHeader       PIC X(5) VALUE "DATE".
-           05 FILL                   PIC X(7) VALUE SPACE.
            05 OutputDayHeader        PIC X(10) VALUE "DAY".
-           05 FILL                   PIC X(30) VALUE SPACE.
            05 OutputDescriptionHeader PIC X(25) VALUE "DESCRIPTION".
-           05 FILL                   PIC X(10) VALUE SPACE.
            
        01  PRINT-LINE                  PIC X(132).
 
@@ -127,6 +133,7 @@
            DISPLAY "CREATED BY: GROUP 1"
            OPEN OUTPUT OutFile.
            PERFORM WRITE-HEADER.
+           PERFORM WRITE-BODY.
            CLOSE OutFile.
 
            PERFORM AccountMenu
@@ -142,6 +149,32 @@
            MOVE OutputDayHeader TO OutputDay.
            MOVE OutputDescriptionHeader TO OutputDescription.
            WRITE OutRecord.
+          
+
+       WRITE-BODY.
+           OPEN INPUT TaskFile.
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       PERFORM COPY-RECORD
+               END-READ
+           END-PERFORM.
+       
+                  CLOSE TaskFile.
+       
+       COPY-RECORD.
+           MOVE TaskID TO OutputBodyID.
+           MOVE TaskDate TO OutputBodyDate.
+           MOVE TaskDay TO OutputBodyDay.
+           MOVE TaskDescription TO OutputBodyDescription.
+           WRITE OutRecord.
+
+    
+          
+
+           
 
        AccountMenu.
            DISPLAY " "
