@@ -1,274 +1,749 @@
-       IDENTIFICATION DIVISION.
+        IDENTIFICATION DIVISION.
        PROGRAM-ID. ScheduleMaker.
 
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT ScheduleFile ASSIGN TO "ScheduleFile.dat"
+           SELECT TaskFile ASSIGN TO "TaskFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT TempFile ASSIGN TO "Temp.dat"
+           SELECT EventFile ASSIGN TO "EventFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT TempTaskFile ASSIGN TO "TempTaskFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT TempEventFile ASSIGN TO "TempEventFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT AccountFile ASSIGN TO "AccountFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT OutFile ASSIGN TO "OutputFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+
 
        DATA DIVISION.
        FILE SECTION.
-       FD ScheduleFile.
-       01 ScheduleRecord.
-           05 TaskDate       PIC X(10).
-           05 TaskDescription PIC X(50).
+       FD OutFile.
+       01  OutRecord.
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputID                PIC X(3).
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputDate              PIC X(5).
+           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputDay               PIC X(10).
+           05 FILL                    PIC X(3) VALUE SPACE.
+           05 OutputDescription       PIC X(25).
+           05 FILL                    PIC X(30) VALUE SPACE.
 
-       FD TempFile.
-       01 TempRecord.
-           05 TempTaskDate       PIC X(10).
-           05 TempTaskDescription PIC X(50).
+       
+
+       FD TaskFile.
+       
+       01 TaskRecord.
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 TaskID               PIC X(3).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 TaskDate             PIC X(5).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 TaskDay              PIC X(10).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 TaskDescription      PIC X(25).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 TaskStatus           PIC X(10).
+           05 FILL         PIC X(10) VALUE SPACE.
+
+       FD EventFile.
+       01 EventRecord.
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventID              PIC X(3).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventDate            PIC X(5).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventDay             PIC X(10).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventDescription     PIC X(25).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventLocation        PIC X(25).
+           05 FILL         PIC X(10) VALUE SPACE.
+           05 EventStatus          PIC X(10).
+           05 FILL         PIC X(10) VALUE SPACE.
+
+       FD TempTaskFile.
+       01 TempTaskRecord.
+           05 TempTaskID           PIC X(3).
+           05 TempTaskDate         PIC X(5).
+           05 TempTaskDay          PIC X(10).
+           05 TempTaskDescription  PIC X(25).
+           05 TempTaskStatus       PIC X(10).
+       
+       FD TempEventFile.
+       01 TempEventRecord.
+           05 TempEventID          PIC X(3).
+           05 TempEventDate        PIC X(5).
+           05 TempEventDay         PIC X(10).
+           05 TempEventDescription PIC X(25).
+           05 TempEventLocation    PIC X(25).
+           05 TempEventStatus      PIC X(10).
+       
+       FD AccountFile.
+       01 AccountFileRecord.
+           05 UsernameSignup       PIC X(20).
+           05 PasswordSignup       PIC X(20).
 
        WORKING-STORAGE SECTION.
-       01 UserChoice PIC X.
-       01 EOF        PIC X VALUE 'N'.
-       01 Username PIC X(20).
-       01 Password PIC X(20).
-       01 ValidUsername PIC X(20) VALUE 'user'.
-       01 ValidPassword PIC X(20) VALUE 'pass'.
-       01 TaskDateInput PIC X(10).
-       01 TaskDescriptionInput PIC X(50).
-       01 ConfirmDeletion     PIC X.
+       01  UserChoice          PIC X.
+       01  EOF                 PIC X VALUE 'N'.
+       01  Username            PIC X(20).
+       01  Password            PIC X(20).
+       01  ValidUsername           PIC X(20) VALUE 'user'.
+       01  ValidPassword           PIC X(20) VALUE 'pass'.
+       01  AccountFound            PIC X VALUE 'N'.
+       01  TaskIDInput             PIC X(3).
+       01  TaskDateInput           PIC X(10).
+       01  TaskDescriptionInput            PIC X(25).
+       01  EventIDInput            PIC X(3).
+       01  EventDateInput          PIC X(10).
+       01  EventDescriptionInput           PIC X(25).
+       01  ConfirmDeletion                 PIC X.
+       01  EditOption          PIC X.
+       01  HeaderOutput.
+           05 FILL                   PIC X(5) VALUE SPACE.
+           05 OutputIDHeader         PIC X(3) VALUE "ID".
+           05 FILL                   PIC X(10) VALUE SPACE.
+           05 OutputDateHeader       PIC X(5) VALUE "DATE".
+           05 FILL                   PIC X(7) VALUE SPACE.
+           05 OutputDayHeader        PIC X(10) VALUE "DAY".
+           05 FILL                   PIC X(30) VALUE SPACE.
+           05 OutputDescriptionHeader PIC X(25) VALUE "DESCRIPTION".
+           05 FILL                   PIC X(10) VALUE SPACE.
+           
+       01  PRINT-LINE                  PIC X(132).
+
+   ...
+
+
 
        PROCEDURE DIVISION.
-      *    OPEN INPUT ScheduleFile.
-      *    OPEN OUTPUT TempFile.
+           DISPLAY "****************************************"
+           DISPLAY "*             TALA-ADLAWAN             *"
+           DISPLAY "****************************************"
+           DISPLAY "CREATED BY: GROUP 1"
+           OPEN OUTPUT OutFile.
+           PERFORM WRITE-HEADER.
+           CLOSE OutFile.
 
-      *    PERFORM UNTIL EOF = 'Y'
-      *        READ ScheduleFile
-      *            AT END
-      *                MOVE 'Y' TO EOF
-      *            NOT AT END
-      *                MOVE TaskDate TO TempTaskDate
-      *                MOVE TaskDescription TO TempTaskDescription
-      *                WRITE TempRecord
-      *    END-PERFORM.
-
-      *    CLOSE ScheduleFile.
-      *    CLOSE TempFile.
-
-           PERFORM DisplayLogin Until Username = ValidUsername AND
-           Password = ValidPassword
+           PERFORM AccountMenu
+      *    PERFORM CopyDFile.
 
            STOP RUN.
+           
+       WRITE-HEADER.
+      
+           MOVE HeaderOutput TO OutRecord.
+           MOVE OutputIDHeader TO OutputID.
+           MOVE OutputDateHeader TO OutputDate.
+           MOVE OutputDayHeader TO OutputDay.
+           MOVE OutputDescriptionHeader TO OutputDescription.
+           WRITE OutRecord.
 
-       DisplayLogin.
+       AccountMenu.
+           DISPLAY " "
+           DISPLAY "--------------ACCOUNT MENU--------------"
+           DISPLAY "[1] Create an account"
+           DISPLAY "[2] Login"
+           DISPLAY "[3] Exit the program"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING.
+           ACCEPT UserChoice
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM Signup
+               WHEN '2' PERFORM Login
+               WHEN '3' PERFORM ConfirmExit
+               WHEN OTHER 
+                   DISPLAY " " 
+                   DISPLAY "Invalid Choice"
+                   PERFORM AccountMenu
+           END-EVALUATE.
+       
+       Signup.
+           DISPLAY " "
+           DISPLAY 'Create a username: ' WITH NO ADVANCING.
+           ACCEPT UsernameSignup.
+
+           DISPLAY 'Create a password: ' WITH NO ADVANCING.
+           ACCEPT PasswordSignup.
+
+           OPEN EXTEND AccountFile.
+           WRITE AccountFileRecord.
+           CLOSE AccountFile.
+
+           PERFORM AccountMenu.
+
+       Login.
+           DISPLAY ' '
            DISPLAY 'Enter username: ' WITH NO ADVANCING.
            ACCEPT Username.
 
            DISPLAY 'Enter password: ' WITH NO ADVANCING.
            ACCEPT Password.
-
-           IF Username = ValidUsername AND Password = ValidPassword
-               DISPLAY 'Login successful.'
-               PERFORM DisplayMenu UNTIL UserChoice = '5'.
-           IF NOT(Username = ValidUsername AND Password = ValidPassword)
-               DISPLAY 'Invalid username or password.'
-           .
-
-       DisplayMenu.
-            DISPLAY "Schedule Maker Menu".
-            DISPLAY "1. View Schedule".
-            DISPLAY "2. Add Task".
-            DISPLAY "3. Edit Task".
-            DISPLAY "4. Delete Task".
-            DISPLAY "5. Exit".
-            ACCEPT UserChoice.
-        
-            PERFORM ProcessOption.
-        
-           
        
-       
-       ProcessOption.
-            EVALUATE UserChoice
-                WHEN '1' PERFORM ViewSchedule
-                WHEN '2' PERFORM AddTask
-                WHEN '3' PERFORM EditTask
-                WHEN '4' PERFORM DeleteTask
-                WHEN '5' PERFORM ConfirmExit
-                WHEN OTHER DISPLAY "Invalid Choice"
-            END-EVALUATE.
-       ConfirmExit.
-            DISPLAY "Do you want to exit? (Y/N):".
-            ACCEPT UserChoice.
-        
-           IF UserChoice = 'Y' 
-                DISPLAY "Exiting Schedule Maker. Thank you!"
-                STOP RUN
-            EXIT.
-                
+           OPEN INPUT AccountFile
            
-               
-
-       ViewSchedule.
+      *    PARA MAINITIALIZE UNG VALUES
            MOVE 'N' TO EOF
-           OPEN INPUT ScheduleFile.
+           MOVE 'N' TO AccountFound
 
-           DISPLAY "Schedule:".
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ AccountFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       DISPLAY "Date: " TaskDate
-                               "Task: " TaskDescription
+                       IF Username = UsernameSignup 
+                       AND Password = PasswordSignup
+                           DISPLAY " "
+                           DISPLAY 'Login successful.'
+                           MOVE 'Y' TO AccountFound
+                           CLOSE AccountFile
+                           PERFORM MainMenu
+                       END-IF
+           END-PERFORM
+
+           CLOSE AccountFile.
+
+           IF AccountFound = 'N'
+               PERFORM Login
+           END-IF.
+
+           
+
+       MainMenu.
+           DISPLAY " ".
+           DISPLAY "---------------MAIN MENU---------------".
+           DISPLAY "[1] View Schedule".
+           DISPLAY "[2] Add Schedule".
+           DISPLAY "[3] Edit Schedule".
+           DISPLAY "[4] Delete Schedule".
+           DISPLAY "[5] Logout".
+           DISPLAY "Enter your choice: " WITH NO ADVANCING.
+           ACCEPT UserChoice.
+
+           PERFORM ProcessOption.
+        
+           
+       ProcessOption.
+           EVALUATE UserChoice
+               WHEN '1' PERFORM ViewSched
+               WHEN '2' PERFORM AddSched
+               WHEN '3' PERFORM EditSched
+               WHEN '4' PERFORM DeleteSched
+               WHEN '5' PERFORM AccountMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE.
+      
+       TypeOption.
+           DISPLAY " "
+           DISPLAY "Select the type you want:"
+           DISPLAY "[1] Task"
+           DISPLAY "[2] Event"
+           DISPLAY "[3] Back to MAIN MENU"
+           DISPLAY "Enter your choice: " WITH NO ADVANCING
+           Accept UserChoice.
+
+
+       ConfirmExit.
+           DISPLAY "Do you want to exit? (Y/N):".
+           ACCEPT UserChoice.
+        
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               DISPLAY "Exiting Schedule Maker. Thank you!"
+               STOP RUN
+           EXIT.
+       
+                
+       ViewSched.
+           PERFORM TypeOption.
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM ViewTask
+               WHEN '2' PERFORM ViewEvent
+               WHEN '3' PERFORM MainMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+           PERFORM MainMenu.
+
+
+       ViewTask.
+           MOVE 'N' TO EOF
+           OPEN INPUT TaskFile.
+
+           DISPLAY " ".
+           DISPLAY "Schedule:".
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       DISPLAY "Task ID: " TaskID
+                               " Date: " TaskDate
+                               " Day: " TaskDay
+                               " Task: " TaskDescription
+                               " Status: " TaskStatus
            END-PERFORM.
 
-           CLOSE ScheduleFile.
+           CLOSE TaskFile.
+
+           PERFORM MainMenu.
+
+
+       ViewEvent.
+           MOVE 'N' TO EOF
+           OPEN INPUT EventFile.
+
+           DISPLAY " ".
+           DISPLAY "Schedule:".
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       DISPLAY "Event ID: " EventID
+                               " Date: " EventDate
+                               " Day: " EventDay
+                               " Event: " EventDescription
+                               "Location: " EventLocation
+                               " Status: " EventStatus
+           END-PERFORM.
+
+           CLOSE EventFile.
+
+           PERFORM MainMenu.
+
+
+       AddSched.
+           PERFORM TypeOption.
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM AddTask
+               WHEN '2' PERFORM AddEvent
+               WHEN '3' PERFORM MainMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+           PERFORM MainMenu.
+
 
        AddTask.
-           DISPLAY "Enter Task Date (YYYY-MM-DD):".
+           DISPLAY "Enter Task Date (MM-DD):".
            ACCEPT TaskDate.
+       
+           DISPLAY "Enter Task Day (Monday):".
+           ACCEPT TaskDay.
 
            DISPLAY "Enter Task Description:".
            ACCEPT TaskDescription.
 
-           OPEN EXTEND ScheduleFile.
-           WRITE ScheduleRecord.
-           CLOSE ScheduleFile.
+           DISPLAY "Enter Task Status:".
+           ACCEPT TaskStatus.
+
+           OPEN EXTEND TaskFile.
+           WRITE TaskRecord.
+           CLOSE TaskFile.
 
            DISPLAY "Task Added Successfully".
 
-      *EditTask.
-      *    DISPLAY "Enter Task Date to Edit (YYYY-MM-DD):".
-      *    ACCEPT TaskDate.
+           PERFORM MainMenu.
 
-      *    OPEN INPUT ScheduleFile.
-      *    OPEN OUTPUT TempFile.
+       AddEvent.
+           DISPLAY "Enter Event Date (MM-DD):".
+           ACCEPT EventDate.
+       
+           DISPLAY "Enter Event Day (Monday):".
+           ACCEPT EventDay.
 
-      *    PERFORM UNTIL EOF = 'Y'
-      *        READ ScheduleFile
-      *            AT END
-      *                MOVE 'Y' TO EOF
-      *            NOT AT END
-      *                IF TaskDate = TempTaskDate
-      *                    DISPLAY "Enter Updated Task Description:"
-      *                    ACCEPT TempTaskDescription
+           DISPLAY "Enter Event Description (Attending an AWS event.):".
+           ACCEPT EventDescription.
 
-      *                    MOVE TaskDate TO TempTaskDate
-      *                    MOVE TempTaskDescription TO TempRecord
-      *                    WRITE TempRecord
-      *                ELSE
-      *                    WRITE ScheduleRecord TO TemRecord
-      *    END-PERFORM.
+           DISPLAY "Enter Event Location (BGC):".
+           ACCEPT EventLocation.
 
-      *    CLOSE ScheduleFile.
-      *    CLOSE TempFile.
+           DISPLAY "Enter Event Status:".
+           ACCEPT EventStatus.
 
-      *    CALL "SYSTEM" USING "mv TempFile ScheduleFile".
-      *    DISPLAY "Task Updated Successfully".
+           OPEN EXTEND EventFile.
+           WRITE EventRecord.
+           CLOSE EventFile.
+
+           DISPLAY "Event Added Successfully".
+
+           PERFORM MainMenu.
+
+
+       EditSched.
+           PERFORM TypeOption.
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM EditTask
+               WHEN '2' PERFORM EditEvent
+               WHEN '3' PERFORM MainMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+           PERFORM MainMenu.
+      
 
        EditTask.
-      *    Writing the records from Schedule file to TempFile    
-           
-           DISPLAY "Enter Task Date (YYYY-MM-DD) to edit:".
-           ACCEPT TaskDateInput.
+      *    Writing the records from TaskFile to TempTaskFile
+           DISPLAY "Enter Task ID (999) to edit: "
+           ACCEPT TaskIDInput
+
+           DISPLAY "Select the field to edit:"
+           DISPLAY "1. Task Date"
+           DISPLAY "2. Task Day"
+           DISPLAY "3. Task Description"
+           DISPLAY "4. Task Status"
+           ACCEPT EditOption
 
            MOVE 'N' TO EOF
 
-           OPEN INPUT ScheduleFile. 
-           OPEN OUTPUT TempFile.
+           OPEN INPUT TaskFile. 
+           OPEN OUTPUT TempTaskFile.
 
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ TaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       IF TaskDateInput = TaskDate
-                           DISPLAY "Enter updated Task Description:"
-                           ACCEPT TempTaskDescription
-                           MOVE TaskDate TO TempTaskDate
-                           WRITE TempRecord
+                       IF TaskIDInput = TaskID
+                           PERFORM EditTaskOptions
+                           WRITE TempTaskRecord
                        ELSE
+                           MOVE TaskID TO TempTaskID
                            MOVE TaskDate TO TempTaskDate
+                           MOVE TaskDay TO TempTaskDay
                            MOVE TaskDescription TO TempTaskDescription
-                           WRITE TempRecord
+                           MOVE TaskStatus TO TempTaskStatus
+                           WRITE TempTaskRecord
                        END-IF
            END-PERFORM.
 
-           CLOSE ScheduleFile.
-           CLOSE TempFile.
+           CLOSE TaskFile.
+           CLOSE TempTaskFile.
       
-      *    Writing the records from Tempfile to ScheduleFile
+      *    Writing the records from Temptaskfile to TaskFile
            MOVE 'N' TO EOF
            
-           OPEN OUTPUT ScheduleFile.
-           OPEN INPUT TempFile.
+           OPEN OUTPUT TaskFile.
+           OPEN INPUT TempTaskFile.
 
            PERFORM UNTIL EOF = 'Y'
-               READ TempFile
+               READ TempTaskFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
+                       MOVE TempTaskID TO TaskID
                        MOVE TempTaskDate TO TaskDate
+                       MOVE TempTaskDay TO TaskDay
                        MOVE TempTaskDescription TO TaskDescription
-                       WRITE ScheduleRecord
+                       MOVE TempTaskStatus TO TaskStatus
+                       WRITE TaskRecord
            END-PERFORM.
 
-           CLOSE TempFile.
-           CLOSE ScheduleFile.
+           CLOSE TempTaskFile.
+           CLOSE TaskFile.
 
            DISPLAY "Task Updated Successfully".
 
+           PERFORM MainMenu.
 
+       EditTaskOptions.
+           EVALUATE EditOption
+               WHEN 1
+                   DISPLAY "Enter updated Task Date:"
+                   ACCEPT TempTaskDate
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 2
+                   DISPLAY "Enter updated Task Day:"
+                   ACCEPT TempTaskDay
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 3
+                   DISPLAY "Enter updated Task Description:"
+                   ACCEPT TempTaskDescription
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskStatus TO TempTaskStatus 
+               WHEN 4
+                   DISPLAY "Enter updated Task Status:"
+                   ACCEPT TempTaskStatus
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+               WHEN OTHER
+                   DISPLAY "Invalid option. No updates performed."
+           END-EVALUATE.
 
-   
-       DeleteTask.
-         
-            DISPLAY "Enter Task Date (YYYY-MM-DD) to delete:".
-            ACCEPT TaskDateInput.
-        
-           DISPLAY "Do you want to continue with the deletion? (Y/N): ".
-            ACCEPT ConfirmDeletion.
-        
-            IF ConfirmDeletion = 'Y'
-                PERFORM DeletionProcess
-            ELSE
-                DISPLAY "Deletion canceled. "
-            END-IF.
-        
-            STOP RUN.
-        
-       DeletionProcess.   
-           OPEN INPUT ScheduleFile.
-           OPEN OUTPUT TempFile.
        
-           MOVE 'N' TO EOF.
-       
+       EditEvent.
+      *    Writing the records from EventFile to TempEventFile
+           DISPLAY "Enter Event ID (999) to edit: "
+           ACCEPT EventIDInput
+
+           DISPLAY "Select the field to edit:"
+           DISPLAY "1. Event Date"
+           DISPLAY "2. Event Day"
+           DISPLAY "3. Event Description"
+           DISPLAY "4. Event Location"
+           DISPLAY "5. Event Status"
+           ACCEPT EditOption
+
+           MOVE 'N' TO EOF
+
+           OPEN INPUT EventFile. 
+           OPEN OUTPUT TempEventFile.
+
            PERFORM UNTIL EOF = 'Y'
-               READ ScheduleFile
+               READ EventFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       IF TaskDateInput = TaskDate
-                           DISPLAY "Task Deleted:" TaskDate
+                       IF EventIDInput = EventID
+                           PERFORM EditEventOptions
+                           WRITE TempEventRecord
                        ELSE
-                           MOVE TaskDate TO TempTaskDate
-                           MOVE TaskDescription TO TempTaskDescription
-                           WRITE TempRecord
+                           MOVE EventID TO TempEventID
+                           MOVE EventDate TO TempEventDate
+                           MOVE EventDay TO TempEventDay
+                           MOVE EventDescription TO TempEventDescription
+                           MOVE EventLocation TO TempEventLocation
+                           MOVE EventStatus TO TempEventStatus
+                           WRITE TempEventRecord
                        END-IF
            END-PERFORM.
-       
-           CLOSE ScheduleFile.
-           CLOSE TempFile.
-       
-           MOVE 'N' TO EOF.
-       
-           OPEN OUTPUT ScheduleFile.
-           OPEN INPUT TempFile.
-       
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+      
+      *    Writing the records from TempEventfile to EventFile
+           MOVE 'N' TO EOF
+           
+           OPEN OUTPUT EventFile.
+           OPEN INPUT TempEventFile.
+
            PERFORM UNTIL EOF = 'Y'
-               READ TempFile
+               READ TempEventFile
                    AT END
                        MOVE 'Y' TO EOF
                    NOT AT END
-                       MOVE TempTaskDate TO TaskDate
-                       MOVE TempTaskDescription TO TaskDescription
-                       WRITE ScheduleRecord
+                       MOVE TempEventID TO EventID
+                       MOVE TempEventDate TO EventDate
+                       MOVE TempEventDay TO EventDay
+                       MOVE TempEventDescription TO EventDescription
+                       MOVE TempEventLocation TO EventLocation
+                       MOVE TempEventStatus TO EventStatus
+                       WRITE EventRecord
            END-PERFORM.
-       
-           CLOSE TempFile.
-           CLOSE ScheduleFile.
+
+           CLOSE TempEventFile.
+           CLOSE EventFile.
+
+           DISPLAY "Event Updated Successfully".
+
+           PERFORM MainMenu.
+
+       EditEventOptions.
+           EVALUATE EditOption
+               WHEN 1
+                   DISPLAY "Enter updated Event Date:"
+                   ACCEPT TempEventDate
+                   MOVE EventID TO TempEventID
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 2
+                   DISPLAY "Enter updated Event Day:"
+                   ACCEPT TempEventDay
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 3
+                   DISPLAY "Enter updated Event Description:"
+                   ACCEPT TempEventDescription
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 4
+                   DISPLAY "Enter updated Event Location:"
+                   ACCEPT TempEventLocation
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventStatus TO TempEventStatus 
+               WHEN 5
+                   DISPLAY "Enter updated Event Status:"
+                   ACCEPT TempEventStatus
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+               WHEN OTHER
+                   DISPLAY "Invalid option. No updates performed."
+           END-EVALUATE.
+
+   
+       DeleteSched.
+           PERFORM TypeOption.
+
+           EVALUATE UserChoice
+               WHEN '1' PERFORM DeleteTaskConfirmation
+               WHEN '2' PERFORM DeleteEventConfirmation
+               WHEN '3' PERFORM MainMenu
+               WHEN OTHER DISPLAY "Invalid Choice"
+           END-EVALUATE. 
+
+           PERFORM MainMenu.
+
+       DeleteTaskConfirmation.
+           DISPLAY "Enter Task ID to delete:".
+           ACCEPT TaskIDInput.
+
+           DISPLAY "Do you want to continue with the deletion? (Y/N): ".
+           ACCEPT UserChoice.
+
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               PERFORM DeleteTask
+           ELSE
+               DISPLAY "Deletion canceled."
+           END-IF.
+
+
+       DeleteTask.
+           OPEN INPUT TaskFile.
+           OPEN OUTPUT TempTaskFile.
+
+           MOVE 'N' TO EOF.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+           AT END
+               MOVE 'Y' TO EOF
+           NOT AT END
+               IF TaskIDInput = TaskID
+                   DISPLAY "Task Deleted: " TaskIDInput
+               ELSE
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskStatus TO TempTaskStatus
+                   WRITE TempTaskRecord
+               END-IF
+           END-PERFORM.
+
+           CLOSE TaskFile.
+           CLOSE TempTaskFile.
+
+           MOVE 'N' TO EOF.
+
+           OPEN OUTPUT TaskFile.
+           OPEN INPUT TempTaskFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TempTaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TempTaskID TO TaskID
+                       MOVE TempTaskDate TO TaskDate
+                       MOVE TempTaskDay TO TaskDay
+                       MOVE TempTaskDescription TO TaskDescription
+                       MOVE TempTaskStatus TO TaskStatus
+                       WRITE TaskRecord
+           END-PERFORM.
+
+           CLOSE TempTaskFile.
+           CLOSE TaskFile.
+
+           DISPLAY "Task Deleted Successfullly".
+
+           PERFORM MainMenu.
+
+       DeleteEventConfirmation.
+           DISPLAY "Enter Event ID to delete:".
+           ACCEPT EventIDInput.
+
+           DISPLAY "Do you want to continue with the deletion? (Y/N): ".
+           ACCEPT UserChoice.
+
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               PERFORM DeleteEvent
+           ELSE
+               DISPLAY "Deletion canceled."
+           END-IF.
+           
+
+       DeleteEvent.
+           OPEN INPUT EventFile.
+           OPEN OUTPUT TempEventFile.
+
+           MOVE 'N' TO EOF.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+           AT END
+               MOVE 'Y' TO EOF
+           NOT AT END
+               IF EventIDInput = EventID
+                   DISPLAY "Event Deleted: " EventIDInput
+               ELSE
+                   MOVE EventID TO TempEventID
+                   MOVE EventDate TO TempEventDate
+                   MOVE EventDay TO TempEventDay
+                   MOVE EventDescription TO TempEventDescription
+                   MOVE EventLocation TO TempEventLocation
+                   MOVE EventStatus TO TempEventStatus
+                   WRITE TempEventRecord
+               END-IF
+           END-PERFORM.
+
+           CLOSE EventFile.
+           CLOSE TempEventFile.
+
+           MOVE 'N' TO EOF.
+
+           OPEN OUTPUT EventFile.
+           OPEN INPUT TempEventFile.
+
+           PERFORM UNTIL EOF = 'Y'
+               READ TempEventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TempEventID TO EventID
+                       MOVE TempEventDate TO EventDate
+                       MOVE TempEventDay TO EventDay
+                       MOVE TempEventDescription TO EventDescription
+                       MOVE TempEventLocation TO EventLocation
+                       MOVE TempEventStatus TO EventStatus
+                       WRITE EventRecord
+           END-PERFORM.
+
+           CLOSE TempEventFile.
+           CLOSE EventFile.
+
+           DISPLAY "Event Deleted Successfullly".
+
+           PERFORM MainMenu.
+
+    
