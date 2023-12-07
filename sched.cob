@@ -22,25 +22,16 @@
        FILE SECTION.
        FD OutFile.
        01  OutRecord.
-           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputID                PIC X(3).
-           05 FILL                    PIC X(10) VALUE SPACE.
-           05 OutputDate              PIC X(5).
-           05 FILL                    PIC X(10) VALUE SPACE.
+           05 OutputDate              PIC X(10).
            05 OutputDay               PIC X(10).
-           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputDescription       PIC X(25).
-           05 FILL                    PIC X(10) VALUE SPACE.
          
-           05 FILL                    PIC X(10) VALUE SPACE.
+         
            05 OutputBodyID                PIC X(3).
-           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputBodyDate              PIC X(5).
-           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputBodyDay               PIC X(10).
-           05 FILL                    PIC X(10) VALUE SPACE.
            05 OutputBodyDescription       PIC X(25).
-           05 FILL                    PIC X(10) VALUE SPACE.
 
 
        
@@ -59,6 +50,7 @@
            05 FILL         PIC X(5) VALUE SPACE.
            05 TaskStatus           PIC X(10).
            05 FILL         PIC X(5) VALUE SPACE.
+           
 
        FD EventFile.
        01 EventRecord.
@@ -115,12 +107,12 @@
        01  ConfirmDeletion                 PIC X.
        01  EditOption          PIC X.
        01  HeaderOutput.
-           05 OutputIDHeader         PIC X(3) VALUE "ID".
+           05 OutputIDHeader         PIC X(5) VALUE "ID".
            05 OutputDateHeader       PIC X(5) VALUE "DATE".
            05 OutputDayHeader        PIC X(10) VALUE "DAY".
-           05 OutputDescriptionHeader PIC X(25) VALUE "DESCRIPTION".
+           05 OutputDescriptionHeader PIC X(15) VALUE "DESCRIPTION".
            
-       01  PRINT-LINE                  PIC X(132).
+  
 
    ...
 
@@ -133,7 +125,8 @@
            DISPLAY "CREATED BY: GROUP 1"
            OPEN OUTPUT OutFile.
            PERFORM WRITE-HEADER.
-      *    PERFORM WRITE-BODY.
+           PERFORM WRITE-BODY.
+      *    PERFORM COPY-EVENT.
            CLOSE OutFile.
 
            PERFORM AccountMenu
@@ -151,25 +144,32 @@
            WRITE OutRecord.
           
 
-      *WRITE-BODY.
-      *    OPEN INPUT TaskFile.
-      *    PERFORM UNTIL EOF = 'Y'
-      *        READ TaskFile
-      *            AT END
-      *                MOVE 'Y' TO EOF
-      *            NOT AT END
-      *                PERFORM COPY-RECORD
-      *        END-READ
-      *    END-PERFORM.
-      *
-      *           CLOSE TaskFile.
-      *
-      *COPY-RECORD.
-      *    MOVE TaskID TO OutputBodyID.
-      *    MOVE TaskDate TO OutputBodyDate.
-      *    MOVE TaskDay TO OutputBodyDay.
-      *    MOVE TaskDescription TO OutputBodyDescription.
-      *    WRITE OutRecord.
+       WRITE-BODY.
+           OPEN INPUT TaskFile.
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       PERFORM COPY-RECORD
+               END-READ
+           END-PERFORM.
+       
+                  CLOSE TaskFile.
+       
+       COPY-RECORD.
+           MOVE TaskID TO OutputBodyID.
+           MOVE TaskDate TO OutputBodyDate.
+           MOVE TaskDay TO OutputBodyDay.
+           MOVE TaskDescription TO OutputBodyDescription.
+           WRITE OutRecord.
+
+      *COPY-EVENT.
+      *    MOVE EventID TO OutputBodyID.
+      *    MOVE EventDate TO OutputBodyDate.
+      *    MOVE EventDay TO OutputBodyDay.
+      *    MOVE EventDescription TO OutputBodyDescription.
+      *    WRITE OutRecord.    
 
     
       *   
