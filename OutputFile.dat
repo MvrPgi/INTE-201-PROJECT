@@ -1,0 +1,21 @@
+                      TASK SCHEDULE REPORT
+
+ID    DATE    DAY          DESCRIPTION                 STATUS
+001   10-11   Thursday     HALA MAY MALI               Completed
+002   06-10   Friday       ewannnnnnnnnnn              Ongoing
+003   06-11   Friday       mc bwct                     Completed
+003   06-29   Monday       mc bwct                     Ongoing
+003   06-12   Tuesday      bayan                       Pending
+
+
+
+
+
+                                    EVENT SCHEDULE REPORT
+
+ID    DATE    DAY          DESCRIPTION                 LOCATION                    STATUS
+001   06-09   Wednesday    event in aws                sa pup po kami              Pending
+002   06-10   Thursday     event in gdsc               quezon city                 Pending
+003   06-11   Friday       event in tpg                qc                          Ongoing
+003   06-29   Monday       ewan koba                   BGC                         Ongoing
+003   06-20   monday       ewan kobaasdfl              BGC                         Ongoing

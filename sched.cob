@@ -14,6 +14,9 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT AccountFile ASSIGN TO "AccountFile.dat"
                ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT OutputFile ASSIGN TO "OutputFile.dat"
+               ORGANIZATION IS LINE SEQUENTIAL.
+               
 
        DATA DIVISION.
        FILE SECTION.
@@ -56,33 +59,173 @@
            05 UsernameSignup       PIC X(20).
            05 PasswordSignup       PIC X(20).
 
+       FD OutputFile.
+       01 OutputRecord             PIC X(900).
+
        WORKING-STORAGE SECTION.
-       01  UserChoice PIC X.
-       01  EOF        PIC X VALUE 'N'.
-       01  Username PIC X(20).
-       01  Password PIC X(20).
-       01  ValidUsername PIC X(20) VALUE 'user'.
-       01  ValidPassword PIC X(20) VALUE 'pass'.
-       01  AccountFound PIC X VALUE 'N'.
-       01  TaskIDInput PIC X(3).
-       01  TaskDateInput PIC X(10).
-       01  TaskDescriptionInput PIC X(25).
-       01  EventIDInput PIC X(3).
-       01  EventDateInput PIC X(10).
-       01  EventDescriptionInput PIC X(25).
-       01  ConfirmDeletion     PIC X.
-       01  EditOption PIC X.
+       01  UserChoice              PIC X(1).
+       01  EOF                     PIC X VALUE 'N'.
+       01  Username                PIC X(20).
+       01  Password                PIC X(20).
+       01  AccountFound            PIC X VALUE 'N'.
+       01  TaskIDInput             PIC X(3).
+       01  EventIDInput            PIC X(3).
+       01  ConfirmDeletion         PIC X(1).
+       01  EditOption              PIC X(1).
 
+       01 Newline.
+           05 FILLER               PIC X(1) VALUE SPACES.
 
+       01 TaskTitle.
+           05 FILLER               PIC X(22) VALUE SPACES.
+           05 TaskTitle-TT         PIC X(25) VALUE 
+           "TASK SCHEDULE REPORT".
+
+       01 TaskCol.
+           05 TaskIDCol            PIC X(6) VALUE "ID".
+           05 TaskDateCol          PIC X(8) VALUE "DATE".
+           05 TaskDayCol           PIC X(13) VALUE "DAY".
+           05 TaskDescriptionCol   PIC X(28) VALUE "DESCRIPTION".
+           05 TaskStatusCol        PIC X(10) VALUE "STATUS".
+
+       01 TaskBody.
+           05 TaskIDBody           PIC X(3).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 TaskDateBody         PIC X(5).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 TaskDayBody          PIC X(10).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 TaskDescriptionBody  PIC X(25).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 TaskStatusBody       PIC X(10).
+
+       01 EventTitle.
+           05 FILLER               PIC X(36) VALUE SPACES.
+           05 EventTitle-TT        PIC X(25) VALUE 
+           "EVENT SCHEDULE REPORT".
+
+       01 EventCol.
+           05 EventIDCol           PIC X(6) VALUE "ID".
+           05 EventDateCol         PIC X(8) VALUE "DATE".
+           05 EventDayCol          PIC X(13) VALUE "DAY".
+           05 EventDescriptionCol  PIC X(28) VALUE "DESCRIPTION".
+           05 EventLocationCol     PIC X(28) VALUE "LOCATION".
+           05 EventStatusCol       PIC X(10) VALUE "STATUS".
+
+       01 EventBody.
+           05 EventIDBody          PIC X(3).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 EventDateBody        PIC X(5).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 EventDayBody         PIC X(10).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 EventDescriptionBody PIC X(25).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 EventLocationBody    PIC X(25).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 EventStatusBody      PIC X(10).
+           
+           
        PROCEDURE DIVISION.
            DISPLAY "****************************************"
            DISPLAY "*             TALA-ADLAWAN             *"
            DISPLAY "****************************************"
            DISPLAY "CREATED BY: GROUP 1"
+
+           PERFORM GenerateReport
            
            PERFORM AccountMenu
 
            STOP RUN.
+
+       GenerateReport.
+           PERFORM WriteTaskTitle
+           PERFORM WriteNewline
+           PERFORM WriteTaskCol
+           PERFORM WriteTaskBody
+
+           PERFORM WriteNewline 5 TIMES
+
+           PERFORM WriteEventTitle
+           PERFORM WriteNewline
+           PERFORM WriteEventCol
+           PERFORM WriteEventBody.
+
+       WriteNewline.
+           OPEN EXTEND OutputFile.
+           MOVE Newline TO OutputRecord.
+           WRITE OutputRecord.
+           CLOSE OutputFile.
+           
+       WriteTaskTitle.
+           OPEN OUTPUT OutputFile.
+           MOVE TaskTitle TO OutputRecord.
+           WRITE OutputRecord.
+           CLOSE OutputFile.
+
+       WriteTaskCol.
+           OPEN EXTEND OutputFile.
+           MOVE TaskCol TO OutputRecord.
+           WRITE OutputRecord.
+           CLOSE OutputFile.
+          
+       WriteTaskBody.
+           OPEN EXTEND OutputFile.
+           OPEN INPUT TaskFile.
+           MOVE 'N' TO EOF
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE TaskID TO TaskIDBody
+                       MOVE TaskDate TO TaskDateBody
+                       MOVE TaskDay TO TaskDayBody
+                       MOVE TaskDescription TO TaskDescriptionBody
+                       MOVE TaskStatus TO TaskStatusBody
+
+                       MOVE TaskBody TO OutputRecord
+                       WRITE OutputRecord
+               END-READ
+           END-PERFORM
+           CLOSE TaskFile.
+           CLOSE OutputFile.
+
+       WriteEventTitle.
+           OPEN EXTEND OutputFile.
+           MOVE EventTitle TO OutputRecord.
+           WRITE OutputRecord.
+           CLOSE OutputFile.
+
+       WriteEventCol.
+           OPEN EXTEND OutputFile.
+           MOVE EventCol TO OutputRecord.
+           WRITE OutputRecord.
+           CLOSE OutputFile.
+          
+       WriteEventBody.
+           OPEN EXTEND OutputFile.
+           OPEN INPUT EventFile.
+           MOVE 'N' TO EOF
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                   NOT AT END
+                       MOVE EventID TO EventIDBody
+                       MOVE EventDate TO EventDateBody
+                       MOVE EventDay TO EventDayBody
+                       MOVE EventDescription TO EventDescriptionBody
+                       MOVE EventLocation TO EventLocationBody
+                       MOVE EventStatus TO EventStatusBody
+
+                       MOVE EventBody TO OutputRecord
+                       WRITE OutputRecord
+               END-READ
+           END-PERFORM
+           CLOSE EventFile.
+           CLOSE OutputFile.
+
 
        AccountMenu.
            DISPLAY " "
@@ -103,6 +246,7 @@
                    PERFORM AccountMenu
            END-EVALUATE.
        
+
        Signup.
            DISPLAY " "
            DISPLAY 'Create a username: ' WITH NO ADVANCING.
@@ -116,6 +260,7 @@
            CLOSE AccountFile.
 
            PERFORM AccountMenu.
+
 
        Login.
            DISPLAY ' '
@@ -166,7 +311,6 @@
            ACCEPT UserChoice.
 
            PERFORM ProcessOption.
-        
            
        ProcessOption.
            EVALUATE UserChoice
@@ -186,16 +330,6 @@
            DISPLAY "[3] Back to MAIN MENU"
            DISPLAY "Enter your choice: " WITH NO ADVANCING
            Accept UserChoice.
-
-
-       ConfirmExit.
-           DISPLAY "Do you want to exit? (Y/N):".
-           ACCEPT UserChoice.
-        
-           IF UserChoice = 'Y' OR UserChoice = 'y'
-               DISPLAY "Exiting Schedule Maker. Thank you!"
-               STOP RUN
-           EXIT.
        
                 
        ViewSched.
@@ -291,6 +425,7 @@
            DISPLAY "Task Added Successfully".
 
            PERFORM MainMenu.
+
 
        AddEvent.
            DISPLAY "Enter Event Date (MM-DD):".
@@ -555,6 +690,7 @@
 
            PERFORM MainMenu.
 
+
        DeleteTaskConfirmation.
            DISPLAY "Enter Task ID to delete:".
            ACCEPT TaskIDInput.
@@ -567,7 +703,6 @@
            ELSE
                DISPLAY "Deletion canceled."
            END-IF.
-
 
        DeleteTask.
            OPEN INPUT TaskFile.
@@ -620,6 +755,7 @@
 
            PERFORM MainMenu.
 
+
        DeleteEventConfirmation.
            DISPLAY "Enter Event ID to delete:".
            ACCEPT EventIDInput.
@@ -633,7 +769,6 @@
                DISPLAY "Deletion canceled."
            END-IF.
            
-
        DeleteEvent.
            OPEN INPUT EventFile.
            OPEN OUTPUT TempEventFile.
@@ -687,5 +822,14 @@
 
            PERFORM MainMenu.
 
-      *    output file
-      *    signup
+
+       ConfirmExit.
+           DISPLAY "Do you want to exit? (Y/N):".
+           ACCEPT UserChoice.
+        
+           IF UserChoice = 'Y' OR UserChoice = 'y'
+               PERFORM GenerateReport.
+               DISPLAY "Exiting Schedule Maker. Thank you!"
+               STOP RUN
+           EXIT.
+
