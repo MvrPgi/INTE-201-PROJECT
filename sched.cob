@@ -22,7 +22,7 @@
        FILE SECTION.
        FD TaskFile.
        01 TaskRecord.
-           05 TaskID               PIC X(3).
+           05 TaskID               PIC 9(3).
            05 TaskDate             PIC X(5).
            05 TaskDay              PIC X(10).
            05 TaskDescription      PIC X(25).
@@ -30,7 +30,7 @@
 
        FD EventFile.
        01 EventRecord.
-           05 EventID              PIC X(3).
+           05 EventID              PIC 9(3).
            05 EventDate            PIC X(5).
            05 EventDay             PIC X(10).
            05 EventDescription     PIC X(25).
@@ -39,7 +39,7 @@
 
        FD TempTaskFile.
        01 TempTaskRecord.
-           05 TempTaskID           PIC X(3).
+           05 TempTaskID           PIC 9(3).
            05 TempTaskDate         PIC X(5).
            05 TempTaskDay          PIC X(10).
            05 TempTaskDescription  PIC X(25).
@@ -47,7 +47,7 @@
        
        FD TempEventFile.
        01 TempEventRecord.
-           05 TempEventID          PIC X(3).
+           05 TempEventID          PIC 9(3).
            05 TempEventDate        PIC X(5).
            05 TempEventDay         PIC X(10).
            05 TempEventDescription PIC X(25).
@@ -89,7 +89,7 @@
            05 TaskStatusCol        PIC X(10) VALUE "STATUS".
 
        01 TaskBody.
-           05 TaskIDBody           PIC X(3).
+           05 TaskIDBody           PIC 9(3).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 TaskDateBody         PIC X(5).
            05 FILLER               PIC X(3) VALUE SPACES.
@@ -113,7 +113,7 @@
            05 EventStatusCol       PIC X(10) VALUE "STATUS".
 
        01 EventBody.
-           05 EventIDBody          PIC X(3).
+           05 EventIDBody          PIC 9(3).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 EventDateBody        PIC X(5).
            05 FILLER               PIC X(3) VALUE SPACES.
@@ -294,6 +294,8 @@
            CLOSE AccountFile.
 
            IF AccountFound = 'N'
+               DISPLAY " "
+               DISPLAY "Incorrect username or password."
                PERFORM Login
            END-IF.
 
@@ -406,6 +408,17 @@
 
 
        AddTask.
+      *    Get the last id in the list and increment 1
+           MOVE 'N' TO EOF
+           OPEN INPUT TaskFile.
+           PERFORM UNTIL EOF = 'Y'
+               READ TaskFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                       ADD 1 TO TaskID              
+           END-PERFORM.
+           CLOSE TaskFile.
+
            DISPLAY "Enter Task Date (MM-DD):".
            ACCEPT TaskDate.
        
@@ -428,6 +441,17 @@
 
 
        AddEvent.
+      *    Get the last id in the list and increment 1
+           MOVE 'N' TO EOF
+           OPEN INPUT EventFile.
+           PERFORM UNTIL EOF = 'Y'
+               READ EventFile
+                   AT END
+                       MOVE 'Y' TO EOF
+                       ADD 1 TO EventID              
+           END-PERFORM.
+           CLOSE EventFile.
+
            DISPLAY "Enter Event Date (MM-DD):".
            ACCEPT EventDate.
        
