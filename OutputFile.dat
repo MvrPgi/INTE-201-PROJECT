@@ -1,13 +1,13 @@
                       TASK SCHEDULE REPORT
 
 ID    DATE    DAY          DESCRIPTION                 STATUS
-001   10-11   Thursday     HALA MAY MALI               Completed
-002   06-10   Friday       ewannnnnnnnnnn              Ongoing
-003   06-11   Friday       mc bwct                     Completed
-004   06-29   Monday       mc bwct                     Ongoing
-005   06-12   Tuesday      bayan                       Pending
-006   09-12   Thursday     updating the increment      Ongoing
-007   01-01   Monday       updatee                     ONgoing
+001   12-17   Sunday       UTS Assignment              Completed
+002   12-17   Sunday       Create a report             Ongoing
+003   12-18   Monday       Fix some bugs in the code   Pending
+004   12-18   Monday       Create a gdocs              Completed
+005   12-18   Tuesday      Create a gform              Pending
+006   12-18   Thursday     Attend DSA class            Ongoing
+007   12-19   Monday       Finalize the reporting      Pending
 
 
 
@@ -16,9 +16,9 @@ ID    DATE    DAY          DESCRIPTION                 STATUS
                                     EVENT SCHEDULE REPORT
 
 ID    DATE    DAY          DESCRIPTION                 LOCATION                    STATUS
-001   06-09   Wednesday    event in aws                sa pup po kami              Pending
-002   06-10   Thursday     event in gdsc               quezon city                 Pending
-003   06-11   Friday       event in tpg                qc                          Ongoing
-004   06-29   Monday       ewan koba                   BGC                         Ongoing
-005   06-20   monday       ewan kobaasdfl              BGC                         Ongoing
-006   01-03   Modnay       ew                          q                           Ongoing
+001   12-20   Wednesday    AWS second meetup           BGC, Taguig                 Completed
+002   12-20   Wednesday    GDSC event                  Quezon City                 Ongoing
+003   12-20   Wednesday    TPG zoom meet event         Quezon City                 Pending
+004   12-21   Thursday     Swimming                    Antipolo                    Pending
+005   12-22   Friday       Jayvee's Birthday Party     Shakey's Rob Mag            Pending
+006   12-25   Monday       Christmas Party             PUP Sta. Mesa               Pending
