@@ -30,7 +30,7 @@ This program is only limited to the following:
 ------------------------------------------
 
 ### II. GETTING STARTED
-### Prerequisites
+#### Prerequisites
 1. Install VSCode
 2. Install the following extensions:
     - COBOL (Intellisense, Syntax Highlighting, Linting and Debugging)
@@ -61,7 +61,7 @@ This program is only limited to the following:
     ```
 
 ------------------------------------------
-### Running the program
+#### Running the program
 1. Open VSCode and open the folder containing the program
 2. Open the terminal and type in the following commands:
 3. Use Windows Subsystem for Linux (WSL) to run the program

@@ -472,7 +472,8 @@
            END-PERFORM.                                                 
            CLOSE EventFile.                                           
 
-           DISPLAY "Enter Event Date (MM-DD):".                         
+           DISPLAY "Enter Event Date (MM-DD):".     
+           ACCEPT EventDate.                    
        
            DISPLAY "Enter Event Day (Monday):".
            ACCEPT EventDay.
