@@ -3,11 +3,12 @@
 ID    DATE    DAY          DESCRIPTION                 STATUS
 001   12-17   Sunday       UTS Assignment              Completed
 002   12-17   Sunday       Create a report             Ongoing
-003   12-18   Monday       Fix some bugs in the code   Pending
+003   12-18   Tuesday      Fix some bugs in the code   Completed
 004   12-18   Monday       Create a gdocs              Completed
 005   12-18   Tuesday      Create a gform              Pending
 006   12-18   Thursday     Attend DSA class            Ongoing
-007   12-19   Monday       Finalize the reporting      Pending
+008   12-25   Monday       Gumawa ng salad.            Pending
+009   12-26   Tuesday      Kainin ang salad.           Pending
 
 
 
@@ -19,6 +20,6 @@ ID    DATE    DAY          DESCRIPTION                 LOCATION                 
 001   12-20   Wednesday    AWS second meetup           BGC, Taguig                 Completed
 002   12-20   Wednesday    GDSC event                  Quezon City                 Ongoing
 003   12-20   Wednesday    TPG zoom meet event         Quezon City                 Pending
-004   12-21   Thursday     Swimming                    Antipolo                    Pending
-005   12-22   Friday       Jayvee's Birthday Party     Shakey's Rob Mag            Pending
+005   12-22   Friday       Jayvee's Birthday Party     Cubao QC                    Pending
 006   12-25   Monday       Christmas Party             PUP Sta. Mesa               Pending
+007   12-25   Monday       Christmas party.            BGC                         Pending
