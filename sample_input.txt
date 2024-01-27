@@ -1,15 +1,21 @@
-00112-17Sunday    UTS Assignment           Completed
-00212-17Sunday    Create a report          Ongoing
-00312-18Monday    Fix some bugs in the codePending
-00412-18Monday    Create a gdocs           Completed
-00512-18Tuesday   Create a gform           Pending
-00612-18Thursday  Attend DSA class         Ongoing
-00712-19Monday    Finalize the reporting   Pending
+001 12-17-24 Sunday    UTS Assignment            12-18-24 Completed
+002 12-17-24 Sunday    Create a report           12-18-24 Ongoing
+003 12-18-24 Tuesday   Fix some bugs in the code 12-18-24 Completed
+004 12-18-24 Monday    Create a gdocs            12-18-24 Completed
+005 12-18-24 Tuesday   Create a gform            12-18-24 Pending
+006 12-18-24 Thursday  Attend DSA class          12-18-24 Ongoing
+007 01-29-24 Monday    Create something useful   12-18-24 Pending
+008 12-25-24 Wednesday Gumawa ng salad.          12-18-24 Pending
+009 12-26-24 Tuesday   Kainin ang salad.         12-12-25 Pending
+010 01-29-24 Monday    Create something          12-18-24 Completed
+011 01-01-24 Monday    Math Assignment           01-02-26 Completed
 
 
-00112-20Wednesday AWS second meetup        BGC, Taguig              Completed
-00212-20Wednesday GDSC event               Quezon City              Ongoing
-00312-20Wednesday TPG zoom meet event      Quezon City              Pending
-00412-21Thursday  Swimming                 Antipolo                 Pending
-00512-22Friday    Jayvee's Birthday Party  Shakey's Rob Mag         Pending
-00612-25Monday    Christmas Party          PUP Sta. Mesa            Pending
+001 12-20-24 Wednesday AWS second meetup         BGC, Taguig          Completed
+002 12-20-24 Wednesday GDSC event                Quezon City          Ongoing
+003 12-20-24 Wednesday TPG zoom meet event       Quezon City          Pending
+004 12-20-24 Wednesday AWS meetup event          Quezon City          Pending
+005 12-22-24 Friday    Jayvee's Birthday Party   Cubao QC             Pending
+006 12-25-24 Monday    Christmas Party           PUP Sta. Mesa        Pending
+007 12-25-24 Monday    Christmas party.          Ewan ko              Pending
+008 02-01-24 Monday    Ewan ko na event          PUP lang to          Pending

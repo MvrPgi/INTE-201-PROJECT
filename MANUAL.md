@@ -158,6 +158,16 @@ This program is only limited to the following:
 7. Enter the new description of the task
 8. The program will display that the description of the task has been edited
 
+#### Editing the due date of a task
+1. Login to your account and you will be prompted to the main menu
+2. Choose the option for editing a schedule (option 3)
+3. After that, you will be prompted to choose between editing a task or an event
+4. Choose the option for editing a task (option 1)
+5. You will be prompted to enter the unique TaskID of the task that you want to edit
+6. Choose the option for editing the due date of the task (option 4)
+7. Enter the new due date of the task
+8. The program will display that the due date of the task has been edited
+
 #### Editing the status of a task
 1. Login to your account and you will be prompted to the main menu
 2. Choose the option for editing a schedule (option 3)
