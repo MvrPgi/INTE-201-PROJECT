@@ -44,35 +44,57 @@
        FD TaskFile.                                                     *> FD FOR THE TASK FILE
        01 TaskRecord.
            05 TaskID               PIC 9(3).
-           05 TaskDate             PIC X(5).
-           05 TaskDay              PIC X(10).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TaskDate             PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TaskDay              PIC X(9).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TaskDescription      PIC X(25).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TaskDueDate          PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TaskStatus           PIC X(10).
 
        FD EventFile.                                                    *> FD FOR THE EVENT FILE
        01 EventRecord.
            05 EventID              PIC 9(3).
-           05 EventDate            PIC X(5).
-           05 EventDay             PIC X(10).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 EventDate            PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 EventDay             PIC X(9).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 EventDescription     PIC X(25).
-           05 EventLocation        PIC X(25).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 EventLocation        PIC X(20).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 EventStatus          PIC X(10).
 
        FD TempTaskFile.                                                 *> FD FOR THE TEMPORARY TASK FILE
        01 TempTaskRecord.
            05 TempTaskID           PIC 9(3).
-           05 TempTaskDate         PIC X(5).
-           05 TempTaskDay          PIC X(10).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempTaskDate         PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempTaskDay          PIC X(9).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TempTaskDescription  PIC X(25).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempTaskDueDate      PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TempTaskStatus       PIC X(10).
        
        FD TempEventFile.                                                *> FD FOR THE TEMPORARY EVENT FILE
        01 TempEventRecord.
            05 TempEventID          PIC 9(3).
-           05 TempEventDate        PIC X(5).
-           05 TempEventDay         PIC X(10).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempEventDate        PIC X(8).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempEventDay         PIC X(9).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TempEventDescription PIC X(25).
-           05 TempEventLocation    PIC X(25).
+           05 FILLER               PIC X(1) VALUE SPACES.
+           05 TempEventLocation    PIC X(20).
+           05 FILLER               PIC X(1) VALUE SPACES.
            05 TempEventStatus      PIC X(10).
        
        FD AccountFile.                                                  *> FD FOR THE ACCOUNT FILE
@@ -94,6 +116,7 @@
        01  EventIDInput            PIC X(3).
        01  ConfirmDeletion         PIC X(1).
        01  EditOption              PIC X(1).
+       01  LoginAttempts           PIC 9(1) VALUE '1'.
 
       ****************VARIABLES FOR GENERATING THE OUTPUT***************
        01 Newline.                                                      
@@ -106,19 +129,22 @@
 
        01 TaskCol.
            05 TaskIDCol            PIC X(6) VALUE "ID".
-           05 TaskDateCol          PIC X(8) VALUE "DATE".
+           05 TaskDateCol          PIC X(11) VALUE "DATE".
            05 TaskDayCol           PIC X(13) VALUE "DAY".
            05 TaskDescriptionCol   PIC X(28) VALUE "DESCRIPTION".
+           05 TaskDueDateCol       PIC X(11) VALUE "DUE DATE".
            05 TaskStatusCol        PIC X(10) VALUE "STATUS".
 
        01 TaskBody.
            05 TaskIDBody           PIC 9(3).
            05 FILLER               PIC X(3) VALUE SPACES.
-           05 TaskDateBody         PIC X(5).
+           05 TaskDateBody         PIC X(8).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 TaskDayBody          PIC X(10).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 TaskDescriptionBody  PIC X(25).
+           05 FILLER               PIC X(3) VALUE SPACES.
+           05 TaskDueDateBody      PIC X(8).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 TaskStatusBody       PIC X(10).
 
@@ -129,7 +155,7 @@
 
        01 EventCol.
            05 EventIDCol           PIC X(6) VALUE "ID".
-           05 EventDateCol         PIC X(8) VALUE "DATE".
+           05 EventDateCol         PIC X(11) VALUE "DATE".
            05 EventDayCol          PIC X(13) VALUE "DAY".
            05 EventDescriptionCol  PIC X(28) VALUE "DESCRIPTION".
            05 EventLocationCol     PIC X(28) VALUE "LOCATION".
@@ -138,7 +164,7 @@
        01 EventBody.
            05 EventIDBody          PIC 9(3).
            05 FILLER               PIC X(3) VALUE SPACES.
-           05 EventDateBody        PIC X(5).
+           05 EventDateBody        PIC X(8).
            05 FILLER               PIC X(3) VALUE SPACES.
            05 EventDayBody         PIC X(10).
            05 FILLER               PIC X(3) VALUE SPACES.
@@ -206,6 +232,7 @@
                        MOVE TaskDate TO TaskDateBody
                        MOVE TaskDay TO TaskDayBody
                        MOVE TaskDescription TO TaskDescriptionBody
+                       MOVE TaskDueDate TO TaskDueDateBody
                        MOVE TaskStatus TO TaskStatusBody
 
                        MOVE TaskBody TO OutputRecord
@@ -317,12 +344,16 @@
 
            CLOSE AccountFile.
 
+      *    To make the login attempts only 3 then it will go back to acount menu 
            IF AccountFound = 'N'
                DISPLAY " "
                DISPLAY "Incorrect username or password."
-               PERFORM Login
+               IF LoginAttempts < 3
+                   ADD 1 TO LoginAttempts
+                   PERFORM Login
+           ELSE
+               PERFORM AccountMenu
            END-IF.
-
            
 
        MainMenu.                                                        *> MAIN MENU TO VIEW, ADD, EDIT, AND DELETE EITHER TASK OR EVENT SCHEDULE
@@ -383,10 +414,11 @@
                        MOVE 'Y' TO EOF                                  
                    NOT AT END
                        DISPLAY "Task ID: " TaskID                       
-                               " Date: " TaskDate
-                               " Day: " TaskDay
-                               " Task: " TaskDescription
-                               " Status: " TaskStatus
+                               "  Date: " TaskDate
+                               "  Day: " TaskDay
+                               "  Task: " TaskDescription
+                               "  Due Date: " TaskDueDate
+                               "  Status: " TaskStatus
            END-PERFORM.
 
            CLOSE TaskFile.                                            
@@ -404,11 +436,11 @@
                        MOVE 'Y' TO EOF                                 
                    NOT AT END
                        DISPLAY "Event ID: " EventID                     
-                               " Date: " EventDate
-                               " Day: " EventDay
-                               " Event: " EventDescription
-                               "Location: " EventLocation
-                               " Status: " EventStatus
+                               "  Date: " EventDate
+                               "  Day: " EventDay
+                               "  Event: " EventDescription
+                               "  Location: " EventLocation
+                               "  Status: " EventStatus
            END-PERFORM.
 
            CLOSE EventFile.                                             
@@ -440,16 +472,19 @@
            END-PERFORM.                                                 *> WHICH WILL BE THE NEW UNIQUE NAME OF OUR NEW TASK
            CLOSE TaskFile.                                              
 
-           DISPLAY "Enter Task Date (MM-DD):".                          *> USER INPUTS THE DATE, DAY, TASK DESCRIPTION,AND STATUS
+           DISPLAY "Enter Task Date (MM-DD-YY):".                          *> USER INPUTS THE DATE, DAY, TASK DESCRIPTION,AND STATUS
            ACCEPT TaskDate.
        
            DISPLAY "Enter Task Day (Monday):".
            ACCEPT TaskDay.
 
-           DISPLAY "Enter Task Description:".
+           DISPLAY "Enter Task Description (Math Assignment):".
            ACCEPT TaskDescription.
 
-           DISPLAY "Enter Task Status:".
+           DISPLAY "Enter Task Due Date (MM-DD-YY):".
+           ACCEPT TaskDueDate.
+
+           DISPLAY "Enter Task Status (Completed):".
            ACCEPT TaskStatus.
 
            OPEN EXTEND TaskFile.                                        *> ALLOWS THE DATA TO ADD TO THE EXISTING DATA WHILE PRESERVING IT
@@ -472,7 +507,7 @@
            END-PERFORM.                                                 
            CLOSE EventFile.                                           
 
-           DISPLAY "Enter Event Date (MM-DD):".     
+           DISPLAY "Enter Event Date (MM-DD-YY):".     
            ACCEPT EventDate.                    
        
            DISPLAY "Enter Event Day (Monday):".
@@ -484,7 +519,7 @@
            DISPLAY "Enter Event Location (BGC):".
            ACCEPT EventLocation.
 
-           DISPLAY "Enter Event Status:".
+           DISPLAY "Enter Event Status (Completed):".
            ACCEPT EventStatus.
 
            OPEN EXTEND EventFile.                                       
@@ -518,7 +553,8 @@
            DISPLAY "1. Task Date"
            DISPLAY "2. Task Day"
            DISPLAY "3. Task Description"
-           DISPLAY "4. Task Status"
+           DISPLAY "4. Task Due Date"
+           DISPLAY "5. Task Status"
            ACCEPT EditOption
 
            MOVE 'N' TO EOF                                              *> INITIALIZE THE EOF VARIABLE TO REPEAT THE PROCESS
@@ -539,6 +575,7 @@
                            MOVE TaskDate TO TempTaskDate
                            MOVE TaskDay TO TempTaskDay
                            MOVE TaskDescription TO TempTaskDescription
+                           MOVE TaskDueDate TO TempTaskDueDate
                            MOVE TaskStatus TO TempTaskStatus
                            WRITE TempTaskRecord
                        END-IF
@@ -562,6 +599,7 @@
                        MOVE TempTaskDate TO TaskDate
                        MOVE TempTaskDay TO TaskDay
                        MOVE TempTaskDescription TO TaskDescription
+                       MOVE TempTaskDueDate TO TaskDueDate
                        MOVE TempTaskStatus TO TaskStatus
                        WRITE TaskRecord
            END-PERFORM.
@@ -581,6 +619,7 @@
                    MOVE TaskID TO TempTaskID
                    MOVE TaskDay TO TempTaskDay
                    MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskDueDate TO TempTaskDueDate
                    MOVE TaskStatus TO TempTaskStatus 
                WHEN 2                                                   *> EDIT THE TASK DAY
                    DISPLAY "Enter updated Task Day:"
@@ -588,6 +627,7 @@
                    MOVE TaskID TO TempTaskID
                    MOVE TaskDate TO TempTaskDate
                    MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskDueDate TO TempTaskDueDate
                    MOVE TaskStatus TO TempTaskStatus 
                WHEN 3                                                   *> EDIT THE TASK DESCRIPTION
                    DISPLAY "Enter updated Task Description:"
@@ -595,14 +635,24 @@
                    MOVE TaskID TO TempTaskID
                    MOVE TaskDate TO TempTaskDate
                    MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDueDate TO TempTaskDueDate
                    MOVE TaskStatus TO TempTaskStatus 
-               WHEN 4                                                   *> EDIT THE TASK STATUS
+               WHEN 4
+                   DISPLAY "Enter updated Task Due Date:"
+                   ACCEPT TempTaskDueDate
+                   MOVE TaskStatus TO TempTaskStatus
+                   MOVE TaskID TO TempTaskID
+                   MOVE TaskDate TO TempTaskDate
+                   MOVE TaskDay TO TempTaskDay
+                   MOVE TaskDescription TO TempTaskDescription
+               WHEN 5                                                   *> EDIT THE TASK STATUS
                    DISPLAY "Enter updated Task Status:"
                    ACCEPT TempTaskStatus
                    MOVE TaskID TO TempTaskID
                    MOVE TaskDate TO TempTaskDate
                    MOVE TaskDay TO TempTaskDay
                    MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskDueDate TO TempTaskDueDate
                WHEN OTHER
                    DISPLAY "Invalid option. No updates performed."
            END-EVALUATE.
@@ -766,6 +816,7 @@
                    MOVE TaskDate TO TempTaskDate
                    MOVE TaskDay TO TempTaskDay
                    MOVE TaskDescription TO TempTaskDescription
+                   MOVE TaskDueDate TO TempTaskDueDate
                    MOVE TaskStatus TO TempTaskStatus
                    WRITE TempTaskRecord                                 *> WRITING THE NON-DELETED VARIABLE(task) TO TEMPORARY FILE
                END-IF
@@ -788,6 +839,7 @@
                        MOVE TempTaskDate TO TaskDate
                        MOVE TempTaskDay TO TaskDay
                        MOVE TempTaskDescription TO TaskDescription
+                       MOVE TempTaskDueDate TO TaskDueDate
                        MOVE TempTaskStatus TO TaskStatus
                        WRITE TaskRecord
            END-PERFORM.
@@ -876,4 +928,12 @@
                DISPLAY "Exiting Schedule Maker. Thank you!"
                STOP RUN                                                                 
            EXIT.
+
+
+      *    features to add:
+      *    -3 attempts only for logging in (done)
+      *    -add spaces dun sa input file (pra maganda tignan) (done)
+      *    -add due date in task schedule (done)
+      *    -change the date of the schedules, add year (done)
+
 
